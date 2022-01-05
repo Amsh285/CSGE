@@ -10,6 +10,7 @@
 #include "IndexBuffer.h"
 
 #include "infrastructure/MathHelper.h"
+#include "infrastructure/Matrix4x4f.h"
 
 #include "Utility.h"
 
@@ -90,15 +91,19 @@ void ExecuteWindow(GLFWwindow* window)
 	//};
 
 	float vertexData[] = {
-		-5.0f, -1.0f, -20.0f,	1.0f, 0.0f, 0.0f, 1.0f, //0
-		-3.0f, -1.0f, -20.0f,		0.0f, 0.0f, 1.0f, 1.0f, // 1
-		-3.0f, 1.0f, -20.0f,		0.0f, 0.0f, 1.0f, 1.0f, // 2
-		-5.0f, 1.0f, -20.0f,		1.0f, 1.0f, 1.0f, 1.0f // 3
+		-7.0f, -1.0f, -50.0f,		1.0f, 0.0f, 0.0f, 1.0f, //0
+		-5.0f, -1.0f, -50.0f,		0.0f, 0.0f, 1.0f, 1.0f, // 1
+		-5.0f, 1.0f, -50.0f,		0.0f, 0.0f, 1.0f, 1.0f, // 2
+		-7.0f, 1.0f, -50.0f,		1.0f, 1.0f, 1.0f, 1.0f // 3
+
+		- 5.0f, -1.0f, -52.0f,		0.0f, 0.0f, 1.0f, 1.0f // 4
 	};
 
 	unsigned int indices[] = {
 		0, 1, 2,
-		2, 3, 0
+		2, 3, 0,
+
+		1, 4, 2
 	};
 
 	unsigned int vao;
@@ -119,15 +124,16 @@ void ExecuteWindow(GLFWwindow* window)
 
 	shaderProgram.Bind();
 
-	std::vector<float> mvp = MathHelper::BuildPerspectiveProjectionMatrixGLCenter(45.0f, width / height, 0.1f, 100.0f);
+	Matrix4x4f perspective = Matrix4x4f::Perspective(45.0f, width / height, 0.1f, 100.0f);
+	std::vector<float> mvp = perspective.GetOpenGlRepresentation();
 
-	float iden[] = { 1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1 };
+	Matrix4x4f translation = Matrix4x4f::Translate(5.0f, .0f, 30.0f);
+	std::vector<float> transform = translation.GetOpenGlRepresentation();
 
-	/*shaderProgram.SetUniformMat4f("u_MVP", iden);*/
 	shaderProgram.SetUniformMat4f("u_MVP", &mvp[0]);
+	shaderProgram.SetUniformMat4f("u_Transform", &transform[0]);
+
+
 	shaderProgram.Unbind();
 
 	RenderingContext square(va, ib, shaderProgram);
