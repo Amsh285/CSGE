@@ -9,6 +9,8 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
+#include "infrastructure/MathHelper.h"
+
 #include "Utility.h"
 
 #include "RenderingContext.h"
@@ -19,12 +21,24 @@
 
 std::vector<std::unique_ptr<Shader>> g_Shaders;
 
-int width = 800;
-int height = 600;
+int width = 1024;
+int height = 768;
 
 void resize(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+
+	// Wechsel auf den Projektionsmatrix- stack
+	glMatrixMode(GL_PROJECTION);
+
+	// Initialisieren mit der Einheitsmatrix
+	glLoadIdentity();
+
+	// Anpassung des Frustum an den neuen Aspect ratio von Resize(width, height)
+	/*gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 150.0f);*/
+
+	// Wieder auf den Modelview stack wechseln
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void processInput(GLFWwindow* window)
@@ -42,15 +56,44 @@ void LoadShaders()
 	g_Shaders.push_back(std::unique_ptr<Shader>(fragmentShader));
 }
 
+void init(GLFWwindow* window, int width, int height)
+{
+	if (height == 0)
+		height = 1;
+
+	// Farbe mit der das bild bereinigt wird
+	GLCall(glClearColor(0.3f, 0.3f, 0.3f, 0.0f));
+
+	//initiale tiefenwerte für den z- buffer 1.0 wegen einheitswürfel?
+	GLCall(glClearDepth(1.0));
+	/*gluPerspective(,)*/
+
+	//wenn ein eingehender tiefenwert kleiner als der wert an der entsprechenden stelle des z-buffers ist wird überschrieben
+	//und die farbe im frame buffer an der entsprechenden stelle übernommen
+	GLCall(glDepthFunc(GL_LESS));
+	GLCall(glEnable(GL_DEPTH_TEST));
+	GLCall(glShadeModel(GL_SMOOTH));
+	resize(window, width, height);
+}
+
 void ExecuteWindow(GLFWwindow* window)
 {
+	init(window, width, height);
+
 	Renderer renderer;
 
+	//float vertexData[] = {
+	//	-0.5f, -0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, //0
+	//	0.5f, -0.5f, -0.5f,		0.0f, 0.0f, 1.0f, 1.0f, // 1
+	//	0.5f, 0.5f, -0.5f,		0.0f, 0.0f, 1.0f, 1.0f, // 2
+	//	-0.5f, 0.5f, -0.5f,		1.0f, 1.0f, 1.0f, 1.0f // 3
+	//};
+
 	float vertexData[] = {
-		-0.5f, -0.5f,	1.0f, 0.0f, 0.0f, 1.0f, //0
-		0.5f, -0.5f,	0.0f, 0.0f, 1.0f, 1.0f, // 1
-		0.5f, 0.5f,		0.0f, 0.0f, 1.0f, 1.0f, // 2
-		-0.5f, 0.5f,	1.0f, 1.0f, 1.0f, 1.0f // 3
+		-5.0f, -1.0f, -20.0f,	1.0f, 0.0f, 0.0f, 1.0f, //0
+		-3.0f, -1.0f, -20.0f,		0.0f, 0.0f, 1.0f, 1.0f, // 1
+		-3.0f, 1.0f, -20.0f,		0.0f, 0.0f, 1.0f, 1.0f, // 2
+		-5.0f, 1.0f, -20.0f,		1.0f, 1.0f, 1.0f, 1.0f // 3
 	};
 
 	unsigned int indices[] = {
@@ -65,7 +108,7 @@ void ExecuteWindow(GLFWwindow* window)
 	VertexArray va;
 	VertexBuffer vb(vertexData, 4 * 2 * 4 * sizeof(float));
 	VertexBufferLayout layout;
-	layout.Push<float>(2);
+	layout.Push<float>(3);
 	layout.Push<float>(4);
 	va.AddBuffer(vb, layout);
 
@@ -73,6 +116,19 @@ void ExecuteWindow(GLFWwindow* window)
 
 	ShaderProgram shaderProgram(g_Shaders);
 	shaderProgram.Build();
+
+	shaderProgram.Bind();
+
+	std::vector<float> mvp = MathHelper::BuildPerspectiveProjectionMatrixGLCenter(45.0f, width / height, 0.1f, 100.0f);
+
+	float iden[] = { 1, 0, 0, 0,
+		0, 1, 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1 };
+
+	/*shaderProgram.SetUniformMat4f("u_MVP", iden);*/
+	shaderProgram.SetUniformMat4f("u_MVP", &mvp[0]);
+	shaderProgram.Unbind();
 
 	RenderingContext square(va, ib, shaderProgram);
 

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\infrastructure\MathHelper.cpp" />
     <ClCompile Include="src\RenderingContext.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\Application.cpp" />
@@ -35,6 +36,7 @@
     <Text Include="src\vertexshader.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\infrastructure\MathHelper.h" />
     <ClInclude Include="src\RenderingContext.h" />
     <ClInclude Include="src\ShaderProgram.h" />
     <ClInclude Include="src\IndexBuffer.h" />

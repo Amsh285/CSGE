@@ -42,8 +42,23 @@ void ShaderProgram::DeleteProgram()
 	m_RendererID = 0;
 }
 
+void ShaderProgram::SetUniformMat4f(const std::string& name, float* mat)
+{
+	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, mat));
+}
+
 ShaderProgram::~ShaderProgram()
 {
 	Unbind();
 	DeleteProgram();
+}
+
+int ShaderProgram::GetUniformLocation(const std::string& name)
+{
+	 GLCall(int result = glGetUniformLocation(m_RendererID, name.c_str()));
+
+	if (result == -1)
+		std::cout << "Error: Uniform: " << name << " not found." << std::endl;
+
+	return result;
 }
