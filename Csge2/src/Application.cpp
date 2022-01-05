@@ -136,7 +136,7 @@ void ExecuteWindow(GLFWwindow* window)
 
 	shaderProgram.Unbind();
 
-	RenderingContext square(va, ib, shaderProgram);
+	RenderingContext squarePart1(va, ib, shaderProgram);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -144,9 +144,8 @@ void ExecuteWindow(GLFWwindow* window)
 		processInput(window);
 
 		/* Render here */
-		
 		renderer.Clear();
-		renderer.Draw(square);
+		renderer.Draw(squarePart1);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
