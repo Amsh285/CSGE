@@ -19,8 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\data\IndexedVertexSet.cpp" />
+    <ClCompile Include="src\geometry\Quad.cpp" />
+    <ClCompile Include="src\geometry\Transforms.cpp" />
+    <ClCompile Include="src\data\Vector3f.cpp" />
     <ClCompile Include="src\infrastructure\MathHelper.cpp" />
-    <ClCompile Include="src\infrastructure\Matrix4x4f.cpp" />
+    <ClCompile Include="src\data\Matrix4x4f.cpp" />
     <ClCompile Include="src\RenderingContext.cpp" />
     <ClCompile Include="src\ShaderProgram.cpp" />
     <ClCompile Include="src\Application.cpp" />
@@ -31,14 +35,20 @@
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
     <ClCompile Include="src\VertexBufferLayout.cpp" />
+    <ClCompile Include="src\data\Vertex.cpp" />
+    <ClCompile Include="src\data\Vector4f.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\fragmentshader.txt" />
     <Text Include="src\vertexshader.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\data\IndexedVertexSet.h" />
+    <ClInclude Include="src\geometry\Quad.h" />
+    <ClInclude Include="src\geometry\Transforms.h" />
+    <ClInclude Include="src\data\Vector3f.h" />
     <ClInclude Include="src\infrastructure\MathHelper.h" />
-    <ClInclude Include="src\infrastructure\Matrix4x4f.h" />
+    <ClInclude Include="src\data\Matrix4x4f.h" />
     <ClInclude Include="src\RenderingContext.h" />
     <ClInclude Include="src\ShaderProgram.h" />
     <ClInclude Include="src\IndexBuffer.h" />
@@ -48,6 +58,8 @@
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />
     <ClInclude Include="src\VertexBufferLayout.h" />
+    <ClInclude Include="src\data\Vertex.h" />
+    <ClInclude Include="src\data\Vector4f.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

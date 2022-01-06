@@ -79,6 +79,7 @@ std::vector<float> Matrix4x4f::GetOpenGlRepresentation() const
 	return matOpenGl;
 }
 
+// see https://www.youtube.com/watch?v=U0_ONQQ5ZNM&ab_channel=BrendanGalea
 Matrix4x4f Matrix4x4f::Perspective(float fovy, float aspectRatio, float zNear, float zFar)
 {
 	float fovyRadHalf = MathHelper::convertToRad(fovy / 2);
@@ -99,6 +100,11 @@ Matrix4x4f Matrix4x4f::Perspective(float fovy, float aspectRatio, float zNear, f
 	});
 }
 
+Matrix4x4f Matrix4x4f::Scale(Vector3f scale)
+{
+	return Scale(scale.X(), scale.Y(), scale.Z());
+}
+
 Matrix4x4f Matrix4x4f::Scale(float x, float y, float z)
 {
 	return Matrix4x4f(
@@ -107,6 +113,11 @@ Matrix4x4f Matrix4x4f::Scale(float x, float y, float z)
 		0.0f	, 0.0f		, z			, 0.0f,
 		0.0f	, 0.0f		, 0.0f		, 1.0f
 	);
+}
+
+Matrix4x4f Matrix4x4f::Translate(Vector3f translationsVector)
+{
+	return Translate(translationsVector.X(), translationsVector.Y(), translationsVector.Z());
 }
 
 Matrix4x4f Matrix4x4f::Translate(float x, float y, float z)

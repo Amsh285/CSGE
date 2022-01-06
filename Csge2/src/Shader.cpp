@@ -1,15 +1,14 @@
 #include "Shader.h"
 
-Shader::Shader(const std::string sourceCode, unsigned int shaderType, const std::string name)
+Shader::Shader(const std::string& sourceCode, const unsigned int& shaderType, const std::string& name)
 	: m_SourceCode(sourceCode), m_ShaderType(shaderType), m_Name(name), m_ShaderID(0)
-
 {
 }
 
-Shader* Shader::LoadFromFile(const char* fileName, unsigned int shaderType, const std::string name)
+Shader Shader::LoadFromFile(const char* fileName, const unsigned int& shaderType, const std::string& name)
 {
 	const std::string sourceCode = Utility::ReadTextFile(fileName);
-	return new Shader(sourceCode, shaderType, name);
+	return Shader(sourceCode, shaderType, name);
 }
 
 void Shader::Compile()

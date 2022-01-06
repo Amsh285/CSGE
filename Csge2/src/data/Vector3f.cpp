@@ -19,3 +19,8 @@ Vector3f Vector3f::operator-(const Vector3f& other)
 {
 	return Vector3f(m_X - other.m_X, m_Y - other.m_Y, m_Z - other.m_Z);
 }
+
+Vector3f Vector3f::operator*(const float& scalar)
+{
+	return Vector3f(m_X * scalar, m_Y * scalar, m_Z * scalar);
+}

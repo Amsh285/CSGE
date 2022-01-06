@@ -10,19 +10,19 @@
 class Shader
 {
 public:
-	inline const std::string& GetSourceCode() const { return m_SourceCode; };
+	const std::string& GetSourceCode() const { return m_SourceCode; };
 
-	inline const unsigned int& GetShaderType() const { return m_ShaderType; };
+	const unsigned int& GetShaderType() const { return m_ShaderType; };
 
-	inline const std::string& GetName() const { return m_Name; };
+	const std::string& GetName() const { return m_Name; };
 
-	inline const unsigned int& GetShaderID() const { return m_ShaderID; };
+	const unsigned int& GetShaderID() const { return m_ShaderID; };
 
-	inline const bool& IsCompiled() const { return m_IsCompiled; };
+	const bool& IsCompiled() const { return m_IsCompiled; };
 
-	Shader(const std::string sourceCode, unsigned int shaderType, const std::string name);
+	Shader(const std::string& sourceCode, const unsigned int& shaderType, const std::string& name);
 
-	static Shader* LoadFromFile(const char* fileName, unsigned int shaderType, const std::string name);
+	static Shader LoadFromFile(const char* fileName, const unsigned int& shaderType, const std::string& name);
 
 	void Compile();
 	void DeleteShader();
@@ -30,7 +30,7 @@ public:
 	~Shader();
 private:
 	const std::string m_SourceCode;
-	unsigned int m_ShaderType;
+	const unsigned int m_ShaderType;
 	const std::string m_Name;
 
 	unsigned int m_ShaderID;

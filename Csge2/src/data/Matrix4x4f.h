@@ -5,7 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "MathHelper.h"
+#include "../infrastructure/MathHelper.h"
+#include "Vector3f.h"
 
 class Matrix4x4f
 {
@@ -24,7 +25,11 @@ public:
 
 	static Matrix4x4f Perspective(float fovy, float aspectRatio, float zNear, float zFar);
 
+	static Matrix4x4f Scale(Vector3f scale);
+
 	static Matrix4x4f Scale(float x, float y, float z);
+
+	static Matrix4x4f Translate(Vector3f translationsVector);
 
 	static Matrix4x4f Translate(float x, float y, float z);
 

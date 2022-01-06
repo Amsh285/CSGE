@@ -13,7 +13,7 @@ class ShaderProgram
 public:
 	const unsigned int& GetProgramID() const { return m_RendererID; };
 
-	ShaderProgram(std::vector<std::unique_ptr<Shader>>& shaders);
+	ShaderProgram(const std::vector<Shader>& shaders);
 
 	void Build();
 	void Bind() const;
@@ -28,6 +28,6 @@ private:
 
 	unsigned int m_RendererID;
 
-	std::vector<std::unique_ptr<Shader>>& m_Shaders;
+	std::vector<Shader> m_Shaders;
 };
 

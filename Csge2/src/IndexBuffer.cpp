@@ -22,5 +22,5 @@ void IndexBuffer::Unbind() const
 
 IndexBuffer::~IndexBuffer()
 {
-	GLCall(glDeleteBuffers(1, &m_RendererID));
+	//GLCall(glDeleteBuffers(1, &m_RendererID));
 }
