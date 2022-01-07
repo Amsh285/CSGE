@@ -1,7 +1,7 @@
 #include "ShaderProgram.h"
 
 ShaderProgram::ShaderProgram(const std::vector<Shader>& shaders)
-	: m_Shaders(shaders), m_RendererID(0)
+	: m_Shaders(shaders), m_RendererID(0), m_Deleted(false)
 {
 }
 
@@ -38,17 +38,22 @@ void ShaderProgram::Unbind() const
 
 void ShaderProgram::DeleteProgram()
 {
-	GLCall(glDeleteProgram(m_RendererID));
-	m_RendererID = 0;
+	if (!m_Deleted)
+	{
+		GLCall(glDeleteProgram(m_RendererID));
+		m_RendererID = 0;
+		m_Deleted = true;
+	}
+}
+
+void ShaderProgram::SetUniform1i(const std::string& name, int value)
+{
+	GLCall(glUniform1i(GetUniformLocation(name), value));
 }
 
 void ShaderProgram::SetUniformMat4f(const std::string& name, float* mat)
 {
 	GLCall(glUniformMatrix4fv(GetUniformLocation(name), 1, false, mat));
-}
-
-ShaderProgram::~ShaderProgram()
-{
 }
 
 int ShaderProgram::GetUniformLocation(const std::string& name)

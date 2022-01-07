@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <map>
 #include <string>
 
 #include <GL/glew.h>
@@ -11,6 +12,7 @@
 
 #include "infrastructure/MathHelper.h"
 #include "data/Matrix4x4f.h"
+#include "data/Texture.h"
 
 #include "Utility.h"
 
@@ -29,11 +31,18 @@ IndexedVertexSet* quadSet;
 std::vector<Shader> g_Shaders;
 std::vector<ShaderProgram> g_ShaderPrograms;
 
+std::map<std::string, Texture*> g_textures;
+
 Matrix4x4f g_mvp;
 
 int g_width = 1024;
 int g_height = 768;
-
+//
+//void ErrorCallback(int error_code, const char* description)
+//{
+//	std::cout << "Error: Code: " << error_code << " - " << description << std::endl;
+//}
+//
 void LoadMvp()
 {
 	g_mvp = Matrix4x4f::Perspective(45.0f, (float)g_width / g_height, 0.1f, 100.0f);
@@ -62,19 +71,36 @@ void LoadVertexSets()
 	quadSet = Quad::GetVertices();
 }
 
-void LoadShaders()
+void LoadTextures()
 {
-	Shader vertexShader = Shader::LoadFromFile("src/vertexshader.txt", GL_VERTEX_SHADER, "vertexshader");
-	Shader fragmentShader = Shader::LoadFromFile("src/fragmentshader.txt", GL_FRAGMENT_SHADER, "fragmentshader");
-
-	g_Shaders.push_back(vertexShader);
-	g_Shaders.push_back(fragmentShader);
-
-	ShaderProgram shaderProgram(g_Shaders);
-	shaderProgram.Build();
-
-	g_ShaderPrograms.push_back(shaderProgram);
+	g_textures["wall"] = new Texture("Assets/wall.jpg");
+	g_textures["badgers"] = new Texture("Assets/Badgers.jpg");
+	g_textures["texarray"] = new Texture("Assets/texturesArray.png");
+	g_textures["awesomeface"] = new Texture("Assets/awesomeface.png");
 }
+
+//void LoadShaders()
+//{
+//	Shader vertexShader = Shader::LoadFromFile(
+//		"src/shaders/vertexshaders/vertexshader.shader",
+//		GL_VERTEX_SHADER,
+//		"vertexshader"
+//	);
+//
+//	Shader fragmentShader = Shader::LoadFromFile(
+//		"src/shaders/fragmentshaders/texture_color_multiplyfragmenshader.shader",
+//		GL_FRAGMENT_SHADER,
+//		"texture_color_multiplyfragmenshader"
+//	);
+//
+//	g_Shaders.push_back(vertexShader);
+//	g_Shaders.push_back(fragmentShader);
+//
+//	ShaderProgram shaderProgram(g_Shaders);
+//	shaderProgram.Build();
+//
+//	g_ShaderPrograms.push_back(shaderProgram);
+//}
 
 void BuildGeometries()
 {
@@ -127,7 +153,7 @@ void init(GLFWwindow* window, int width, int height)
 	resize(window, width, height);
 }
 
-RenderingContext GetRenderingContext(Quad& quad)
+RenderingContext GetRenderingContext(Quad& quad, ShaderProgram& shader)
 {
 	VertexArray va;
 
@@ -154,22 +180,48 @@ RenderingContext GetRenderingContext(Quad& quad)
 	va.AddBuffer(vb, layout);
 
 	IndexBuffer indexBuffer(&testQuadindices[0], testQuadindices.size());
-	return { quad.Transform(), va, indexBuffer, g_ShaderPrograms[0] };
+	return { quad.Transform(), va, indexBuffer, vb, shader };
 }
 
 void ExecuteWindow(GLFWwindow* window)
 {
 	init(window, g_width, g_height);
 
+	LoadTextures();
+	//LoadShaders();
+
 	Renderer renderer;
-	LoadShaders();
+
+	Shader vertexShader = Shader::LoadFromFile(
+		"src/shaders/vertexshaders/vertexshader.shader",
+		GL_VERTEX_SHADER,
+		"vertexshader"
+	);
+
+	Shader fragmentShader = Shader::LoadFromFile(
+		"src/shaders/fragmentshaders/texture_color_multiplyfragmenshader.shader",
+		GL_FRAGMENT_SHADER,
+		"texture_color_multiplyfragmenshader"
+	);
+
+	g_Shaders.push_back(vertexShader);
+	g_Shaders.push_back(fragmentShader);
+
+	ShaderProgram shaderProgram(g_Shaders);
+	shaderProgram.Build();
+
+	g_ShaderPrograms.push_back(shaderProgram);
 
 	std::vector<RenderingContext> contexts;
 
-	for (size_t i = 0; i < quads.size(); i++)
-		contexts.push_back(GetRenderingContext(quads[i]));
+	for (auto it = quads.begin(); it != quads.end(); ++it)
+		contexts.push_back(GetRenderingContext(*it, shaderProgram));
 
-	/* Loop until the user closes the window */
+	g_textures["wall"]->Bind(0);
+
+	g_ShaderPrograms[0].Bind();
+	g_ShaderPrograms[0].SetUniform1i("tex1", 0);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window);
@@ -177,18 +229,26 @@ void ExecuteWindow(GLFWwindow* window)
 		/* Render here */
 		renderer.Clear();
 		renderer.SetPerspective(g_mvp);
-		/*renderer.Draw(square);*/
 
-		for (size_t i = 0; i < contexts.size(); i++)
-			renderer.Draw(contexts[i]);
+		for (auto it = contexts.begin(); it != contexts.end(); ++it)
+			renderer.Draw(*it);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
+
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
 
 	delete quadSet;
+
+	for (auto it = g_textures.begin(); it != g_textures.end(); ++it)
+		delete it->second;
+
+	for (auto it = g_Shaders.begin(); it != g_Shaders.end(); ++it)
+		it->DeleteShader();
+
+	shaderProgram.DeleteProgram();
 }
 
 int main(void)
@@ -222,8 +282,12 @@ int main(void)
 	}
 
 	glfwSetFramebufferSizeCallback(window, resize);
+
 	ExecuteWindow(window);
 
+	/*glfwSetErrorCallback(ErrorCallback);*/
+	
 	glfwTerminate();
+
 	return 0;
 }

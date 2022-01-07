@@ -72,10 +72,12 @@
     <ClCompile Include="src\geometry\Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="src\fragmentshader.txt" />
-    <Text Include="src\vertexshader.txt" />
+    <ClCompile Include="src\vendor\stb_image\stb_image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\data\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -132,5 +134,15 @@
     <ClInclude Include="src\geometry\Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\vendor\stb_image\stb_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\data\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\shaders\fragmentshaders\texture_color_multiplyfragmenshader.shader" />
+    <None Include="src\shaders\vertexshaders\vertexshader.shader" />
   </ItemGroup>
 </Project>

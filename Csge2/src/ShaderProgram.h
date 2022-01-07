@@ -20,14 +20,15 @@ public:
 	void Unbind() const;
 	void DeleteProgram();
 
+	void SetUniform1i(const std::string& name, int value);
 	void SetUniformMat4f(const std::string& name, float* mat);
-
-	~ShaderProgram();
 private:
 	int GetUniformLocation(const std::string& name);
 
 	unsigned int m_RendererID;
 
 	std::vector<Shader> m_Shaders;
+
+	bool m_Deleted;
 };
 

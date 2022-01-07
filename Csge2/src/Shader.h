@@ -26,8 +26,6 @@ public:
 
 	void Compile();
 	void DeleteShader();
-
-	~Shader();
 private:
 	const std::string m_SourceCode;
 	const unsigned int m_ShaderType;

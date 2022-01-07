@@ -37,6 +37,7 @@ void Renderer::Draw(Transforms& transform, const VertexArray& va, const IndexBuf
 
 	shaderProgram.SetUniformMat4f("u_MVP", &mvp[0]);
 	shaderProgram.SetUniformMat4f("u_Transform", &v_Transform[0]);
+	
 
  	GLCall(glDrawElements(GL_TRIANGLES, ib.GetCount(), GL_UNSIGNED_INT, nullptr));
 }

@@ -1,6 +1,7 @@
 #include "VertexArray.h"
 
 VertexArray::VertexArray()
+	: m_Disposed(false)
 {
 	GLCall(glGenVertexArrays(1, &m_RendererID));
 }
@@ -34,7 +35,15 @@ void VertexArray::Unbind() const
 	GLCall(glBindVertexArray(0));
 }
 
+void VertexArray::Dispose()
+{
+	if (!m_Disposed)
+	{
+		GLCall(glDeleteVertexArrays(1, &m_RendererID));
+		m_Disposed = true;
+	}
+}
+
 VertexArray::~VertexArray()
 {
-	/*GLCall(glDeleteVertexArrays(1, &m_RendererID));*/
 }

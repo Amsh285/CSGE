@@ -42,12 +42,9 @@ void Shader::Compile()
 
 void Shader::DeleteShader()
 {
-	GLCall(glDeleteShader(m_ShaderID));
-	m_IsCompiled = false;
-}
-
-Shader::~Shader()
-{
 	if (m_IsCompiled)
-		DeleteShader();
+	{
+		GLCall(glDeleteShader(m_ShaderID));
+		m_IsCompiled = false;
+	}
 }

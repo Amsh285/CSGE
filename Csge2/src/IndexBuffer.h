@@ -12,8 +12,11 @@ public:
 	void Bind() const;
 	void Unbind() const;
 
+	void Dispose();
+
 	~IndexBuffer();
 private:
 	unsigned int m_RendererID;
 	unsigned int m_Count;
+	bool m_Disposed;
 };

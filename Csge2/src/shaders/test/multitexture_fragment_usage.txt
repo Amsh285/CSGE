@@ -1,0 +1,10 @@
+Texture tex("Assets/wall.jpg");
+	Texture tex2("Assets/awesomeface.png");
+
+	tex.Bind(0);
+	tex2.Bind(1);
+
+
+	g_ShaderPrograms[0].Bind();
+	g_ShaderPrograms[0].SetUniform1i("tex1", 0);
+	g_ShaderPrograms[0].SetUniform1i("tex2", 1);
