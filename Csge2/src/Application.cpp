@@ -29,8 +29,8 @@ std::vector<Quad> quads;
 IndexedVertexSet* quadSet;
 
 std::vector<Shader> g_Shaders;
-std::vector<ShaderProgram> g_ShaderPrograms;
 
+std::map<std::string, ShaderProgram*> g_ShaderPrograms;
 std::map<std::string, Texture*> g_textures;
 
 Matrix4x4f g_mvp;
@@ -79,42 +79,54 @@ void LoadTextures()
 	g_textures["awesomeface"] = new Texture("Assets/awesomeface.png");
 }
 
-//void LoadShaders()
-//{
-//	Shader vertexShader = Shader::LoadFromFile(
-//		"src/shaders/vertexshaders/vertexshader.shader",
-//		GL_VERTEX_SHADER,
-//		"vertexshader"
-//	);
-//
-//	Shader fragmentShader = Shader::LoadFromFile(
-//		"src/shaders/fragmentshaders/texture_color_multiplyfragmenshader.shader",
-//		GL_FRAGMENT_SHADER,
-//		"texture_color_multiplyfragmenshader"
-//	);
-//
-//	g_Shaders.push_back(vertexShader);
-//	g_Shaders.push_back(fragmentShader);
-//
-//	ShaderProgram shaderProgram(g_Shaders);
-//	shaderProgram.Build();
-//
-//	g_ShaderPrograms.push_back(shaderProgram);
-//}
+void LoadShaders()
+{
+	Shader vertexShader = Shader::LoadFromFile(
+		"src/shaders/vertexshaders/vertexshader.shader",
+		GL_VERTEX_SHADER,
+		"vertexshader"
+	);
+	vertexShader.Compile();
+
+	Shader textureColorMultiplyFragmentShader = Shader::LoadFromFile(
+		"src/shaders/fragmentshaders/texture_color_multiplyfragmenshader.shader",
+		GL_FRAGMENT_SHADER,
+		"texture_color_multiplyfragmenshader"
+	);
+	textureColorMultiplyFragmentShader.Compile();
+
+	Shader vertexColorFragmentShader = Shader::LoadFromFile(
+		"src/shaders/fragmentshaders/vertexcolor_fragmentshader.shader",
+		GL_FRAGMENT_SHADER,
+		"vertexcolor_fragmentshader"
+	);
+	vertexColorFragmentShader.Compile();
+
+	g_Shaders.push_back(vertexShader);
+	g_Shaders.push_back(textureColorMultiplyFragmentShader);
+	g_Shaders.push_back(vertexColorFragmentShader);
+
+	g_ShaderPrograms["texcolmultiply"] = new ShaderProgram({ vertexShader, textureColorMultiplyFragmentShader });
+	g_ShaderPrograms["texcolmultiply"]->Build();
+
+	g_ShaderPrograms["default"] = new ShaderProgram({ vertexShader, vertexColorFragmentShader });
+	g_ShaderPrograms["default"]->Build();
+}
 
 void BuildGeometries()
 {
-	Quad testQuad;
-	testQuad.Transform().Position() = Vector3f(10.0f, -10.0f, -50.0f);
-	testQuad.Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
-	testQuad.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
+	Quad quad1;
+	quad1.Transform().Position() = Vector3f(10.0f, -10.0f, -50.0f);
+	quad1.Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
+	quad1.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
 
-	quads.push_back(testQuad);
+	quads.push_back(quad1);
 
 	Quad quad2;
 	quad2.Transform().Position() = Vector3f(-5.0f, 5.0f, -50.0f);
 	quad2.Transform().Rotation() = Vector3f(0.0f, -45.0f, 0.0f);
 	quad2.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
+	quad2.UseTexture("badgers", "texcolmultiply");
 
 	quads.push_back(quad2);
 
@@ -122,6 +134,7 @@ void BuildGeometries()
 	quad3.Transform().Position() = Vector3f(-5.0f, -5.0f, -50.0f);
 	quad3.Transform().Rotation() = Vector3f(0.0f, -45.0f, 0.0f);
 	quad3.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
+	quad3.UseTexture("texarray", "texcolmultiply");
 
 	quads.push_back(quad3);
 
@@ -129,6 +142,7 @@ void BuildGeometries()
 	quad4.Transform().Position() = Vector3f(-15.0f, -5.0f, -50.0f);
 	quad4.Transform().Rotation() = Vector3f(45.0f, 0.0f, 0.0f);
 	quad4.Transform().Scale() = Vector3f(5.0f, 20.0f, 5.0f);
+	quad4.UseTexture("awesomeface", "texcolmultiply");
 
 	quads.push_back(quad4);
 }
@@ -153,7 +167,7 @@ void init(GLFWwindow* window, int width, int height)
 	resize(window, width, height);
 }
 
-RenderingContext GetRenderingContext(Quad& quad, ShaderProgram& shader)
+RenderingContext GetRenderingContext(Quad& quad)
 {
 	VertexArray va;
 
@@ -180,7 +194,7 @@ RenderingContext GetRenderingContext(Quad& quad, ShaderProgram& shader)
 	va.AddBuffer(vb, layout);
 
 	IndexBuffer indexBuffer(&testQuadindices[0], testQuadindices.size());
-	return { quad.Transform(), va, indexBuffer, vb, shader };
+	return { quad, va, indexBuffer, vb, *g_ShaderPrograms[quad.GetShaderProgram()]};
 }
 
 void ExecuteWindow(GLFWwindow* window)
@@ -188,39 +202,13 @@ void ExecuteWindow(GLFWwindow* window)
 	init(window, g_width, g_height);
 
 	LoadTextures();
-	//LoadShaders();
+	LoadShaders();
 
 	Renderer renderer;
-
-	Shader vertexShader = Shader::LoadFromFile(
-		"src/shaders/vertexshaders/vertexshader.shader",
-		GL_VERTEX_SHADER,
-		"vertexshader"
-	);
-
-	Shader fragmentShader = Shader::LoadFromFile(
-		"src/shaders/fragmentshaders/texture_color_multiplyfragmenshader.shader",
-		GL_FRAGMENT_SHADER,
-		"texture_color_multiplyfragmenshader"
-	);
-
-	g_Shaders.push_back(vertexShader);
-	g_Shaders.push_back(fragmentShader);
-
-	ShaderProgram shaderProgram(g_Shaders);
-	shaderProgram.Build();
-
-	g_ShaderPrograms.push_back(shaderProgram);
-
 	std::vector<RenderingContext> contexts;
 
 	for (auto it = quads.begin(); it != quads.end(); ++it)
-		contexts.push_back(GetRenderingContext(*it, shaderProgram));
-
-	g_textures["wall"]->Bind(0);
-
-	g_ShaderPrograms[0].Bind();
-	g_ShaderPrograms[0].SetUniform1i("tex1", 0);
+		contexts.push_back(GetRenderingContext(*it));
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -231,7 +219,7 @@ void ExecuteWindow(GLFWwindow* window)
 		renderer.SetPerspective(g_mvp);
 
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
-			renderer.Draw(*it);
+			renderer.Draw(*it, g_textures);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -239,6 +227,8 @@ void ExecuteWindow(GLFWwindow* window)
 		/* Poll for and process events */
 		glfwPollEvents();
 	}
+
+	//Todo: proper cleanup
 
 	delete quadSet;
 
@@ -248,7 +238,11 @@ void ExecuteWindow(GLFWwindow* window)
 	for (auto it = g_Shaders.begin(); it != g_Shaders.end(); ++it)
 		it->DeleteShader();
 
-	shaderProgram.DeleteProgram();
+	for (auto it = g_ShaderPrograms.begin(); it != g_ShaderPrograms.end(); ++it)
+	{
+		it->second->DeleteProgram();
+		delete it->second;
+	}
 }
 
 int main(void)

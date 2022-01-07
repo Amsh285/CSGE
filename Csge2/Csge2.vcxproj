@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\fragmentshaders\texture_color_multiplyfragmenshader.shader" />
+    <None Include="src\shaders\fragmentshaders\vertexcolor_fragmentshader.shader" />
     <None Include="src\shaders\vertexshaders\vertexshader.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

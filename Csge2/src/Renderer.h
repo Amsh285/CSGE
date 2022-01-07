@@ -1,8 +1,11 @@
 #pragma once
 
+#include<map>
+
 #include <GL/glew.h>
 
 #include "data/Matrix4x4f.h"
+#include "data/Texture.h"
 
 #include "IndexBuffer.h"
 #include "RenderingContext.h"
@@ -20,8 +23,8 @@ public:
 	Renderer();
 
 	void Clear();
-	void Draw(RenderingContext& context);
-	void Draw(Transforms& transform, const VertexArray& va, const IndexBuffer& ib, ShaderProgram& shaderProgram);
+	void Draw(RenderingContext& context, std::map<std::string, Texture*> textures);
+	void Draw(Geometry& geometry, const VertexArray& va, const IndexBuffer& ib, ShaderProgram& shaderProgram, std::map<std::string, Texture*> textures);
 
 	~Renderer();
 private:

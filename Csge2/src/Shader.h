@@ -18,8 +18,6 @@ public:
 
 	const unsigned int& GetShaderID() const { return m_ShaderID; };
 
-	const bool& IsCompiled() const { return m_IsCompiled; };
-
 	Shader(const std::string& sourceCode, const unsigned int& shaderType, const std::string& name);
 
 	static Shader LoadFromFile(const char* fileName, const unsigned int& shaderType, const std::string& name);
@@ -33,6 +31,6 @@ private:
 
 	unsigned int m_ShaderID;
 
-	bool m_IsCompiled = false;
+	bool m_IsDeleted;
 };
 

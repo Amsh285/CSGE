@@ -1,7 +1,7 @@
 #include "Shader.h"
 
 Shader::Shader(const std::string& sourceCode, const unsigned int& shaderType, const std::string& name)
-	: m_SourceCode(sourceCode), m_ShaderType(shaderType), m_Name(name), m_ShaderID(0)
+	: m_SourceCode(sourceCode), m_ShaderType(shaderType), m_Name(name), m_ShaderID(0), m_IsDeleted(false)
 {
 }
 
@@ -36,15 +36,13 @@ void Shader::Compile()
 		GLCall(glDeleteShader(m_ShaderID));
 		m_ShaderID = 0;
 	}
-
-	m_IsCompiled = true;
 }
 
 void Shader::DeleteShader()
 {
-	if (m_IsCompiled)
+	if (!m_IsDeleted)
 	{
 		GLCall(glDeleteShader(m_ShaderID));
-		m_IsCompiled = false;
+		m_IsDeleted = false;
 	}
 }

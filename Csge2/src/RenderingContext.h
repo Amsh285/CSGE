@@ -4,20 +4,21 @@
 #include "IndexBuffer.h"
 #include "ShaderProgram.h"
 #include "geometry/Transforms.h"
+#include "geometry/Geometry.h"
 
 class RenderingContext
 {
 public:
-	Transforms& GetTransform() { return m_Transform; };
+	Geometry& GetGeometry() { return m_Geometry; };
 	const VertexArray& GetVertexArray() const { return m_VertexArray; };
 	const IndexBuffer& GetIndexBuffer() const { return m_IndexBuffer; };
 	ShaderProgram& GetShaderProgram() { return m_ShaderProgram; };
 
-	RenderingContext(Transforms& transform, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram);
+	RenderingContext(Geometry& geometry, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram);
 
 	void Dispose();
 private:
-	Transforms m_Transform;
+	Geometry m_Geometry;
 	VertexArray m_VertexArray;
 	IndexBuffer m_IndexBuffer;
 	VertexBuffer m_VertexBuffer;

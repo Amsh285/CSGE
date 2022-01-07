@@ -12,18 +12,11 @@ void ShaderProgram::Build()
 	for (size_t i = 0; i < m_Shaders.size(); i++)
 	{
 		Shader& shader = m_Shaders.at(i);
-
-		if (!shader.IsCompiled())
-			shader.Compile();
-
 		GLCall(glAttachShader(m_RendererID, shader.GetShaderID()));
 	}
 
 	GLCall(glLinkProgram(m_RendererID));
 	GLCall(glValidateProgram(m_RendererID));
-
-	/*for (size_t i = 0; i < m_Shaders.size(); i++)
-		m_Shaders.at(i).DeleteShader();*/
 }
 
 void ShaderProgram::Bind() const
