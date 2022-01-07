@@ -11,6 +11,13 @@
 class Matrix4x4f
 {
 public:
+	Matrix4x4f() : Matrix4x4f(
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	) {};
+
 	Matrix4x4f(
 		float v00, float v01, float v02, float v03,
 		float v10, float v11, float v12, float v13,

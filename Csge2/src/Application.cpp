@@ -27,22 +27,28 @@ std::vector<Quad> quads;
 IndexedVertexSet* quadSet;
 
 std::vector<Shader> g_Shaders;
+std::vector<ShaderProgram> g_ShaderPrograms;
 
-int width = 1024;
-int height = 768;
+Matrix4x4f g_mvp;
+
+int g_width = 1024;
+int g_height = 768;
+
+void LoadMvp()
+{
+	g_mvp = Matrix4x4f::Perspective(45.0f, (float)g_width / g_height, 0.1f, 100.0f);
+}
 
 void resize(GLFWwindow* window, int width, int height)
 {
+	if (height == 0)
+		height = 1;
+
+	g_width = width;
+	g_height = height;
+
 	glViewport(0, 0, width, height);
-
-	// Wechsel auf den Projektionsmatrix- stack
-	glMatrixMode(GL_PROJECTION);
-
-	// Initialisieren mit der Einheitsmatrix
-	glLoadIdentity();
-
-	// Wieder auf den Modelview stack wechseln
-	glMatrixMode(GL_MODELVIEW);
+	LoadMvp();
 }
 
 void processInput(GLFWwindow* window)
@@ -63,13 +69,18 @@ void LoadShaders()
 
 	g_Shaders.push_back(vertexShader);
 	g_Shaders.push_back(fragmentShader);
+
+	ShaderProgram shaderProgram(g_Shaders);
+	shaderProgram.Build();
+
+	g_ShaderPrograms.push_back(shaderProgram);
 }
 
 void BuildGeometries()
 {
 	Quad testQuad;
 	testQuad.Transform().Position() = Vector3f(10.0f, -10.0f, -50.0f);
-	testQuad.Transform().Rotation() = Vector3f(0.0f, 45.0f, 0.0f);
+	testQuad.Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
 	testQuad.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
 
 	quads.push_back(testQuad);
@@ -99,7 +110,7 @@ void BuildGeometries()
 void init(GLFWwindow* window, int width, int height)
 {
 	if (height == 0)
-		height = 1;
+		g_height = 1;
 
 	// Farbe mit der das bild bereinigt wird
 	GLCall(glClearColor(0.3f, 0.3f, 0.3f, 0.0f));
@@ -143,38 +154,20 @@ RenderingContext GetRenderingContext(Quad& quad)
 	va.AddBuffer(vb, layout);
 
 	IndexBuffer indexBuffer(&testQuadindices[0], testQuadindices.size());
-
-	ShaderProgram shaderProgram(g_Shaders);
-	shaderProgram.Build();
-	shaderProgram.Bind();
-
-	Matrix4x4f perspective = Matrix4x4f::Perspective(45.0f, width / height, 0.1f, 100.0f);
-	std::vector<float> mvp = perspective.GetOpenGlRepresentation();
-
-	Matrix4x4f transformations = quad.Transform().GetTransformationMatrix();
-	std::vector<float> transform = transformations.GetOpenGlRepresentation();
-
-	shaderProgram.SetUniformMat4f("u_MVP", &mvp[0]);
-	shaderProgram.SetUniformMat4f("u_Transform", &transform[0]);
-
-	shaderProgram.Unbind();
-
-	return { va, indexBuffer, shaderProgram };
+	return { quad.Transform(), va, indexBuffer, g_ShaderPrograms[0] };
 }
 
 void ExecuteWindow(GLFWwindow* window)
 {
-	init(window, width, height);
+	init(window, g_width, g_height);
 
 	Renderer renderer;
+	LoadShaders();
 
 	std::vector<RenderingContext> contexts;
 
 	for (size_t i = 0; i < quads.size(); i++)
 		contexts.push_back(GetRenderingContext(quads[i]));
-	/*contexts.push_back(testQuadContext);*/
-
-	/*contexts.push_back(GetRenderingContext(quads[0]));*/
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -183,6 +176,7 @@ void ExecuteWindow(GLFWwindow* window)
 
 		/* Render here */
 		renderer.Clear();
+		renderer.SetPerspective(g_mvp);
 		/*renderer.Draw(square);*/
 
 		for (size_t i = 0; i < contexts.size(); i++)
@@ -199,8 +193,8 @@ void ExecuteWindow(GLFWwindow* window)
 
 int main(void)
 {
+	LoadMvp();
 	LoadVertexSets();
-	LoadShaders();
 	BuildGeometries();
 
 	GLFWwindow* window;
@@ -210,7 +204,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(g_width, g_height, "Hello World", NULL, NULL);
 
 	if (!window)
 	{
@@ -227,9 +221,7 @@ int main(void)
 		return -1;
 	}
 
-	glViewport(0, 0, width, height);
 	glfwSetFramebufferSizeCallback(window, resize);
-
 	ExecuteWindow(window);
 
 	glfwTerminate();

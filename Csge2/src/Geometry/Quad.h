@@ -2,16 +2,15 @@
 
 #include<vector>
 
+#include "Geometry.h"
 #include "Transforms.h"
 #include "../data/Vertex.h"
 #include "../data/IndexedVertexSet.h"
 
 
-class Quad
+class Quad : public Geometry
 {
 public:
-	Transforms& Transform() { return m_Transform; };
-
 	Quad();
 
 	static IndexedVertexSet* GetVertices();

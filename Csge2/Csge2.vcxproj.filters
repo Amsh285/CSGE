@@ -69,6 +69,9 @@
     <ClCompile Include="src\data\IndexedVertexSet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\geometry\Geometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="src\fragmentshader.txt" />
@@ -124,6 +127,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\data\IndexedVertexSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\geometry\Geometry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
