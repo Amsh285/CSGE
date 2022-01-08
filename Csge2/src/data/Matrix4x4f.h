@@ -32,6 +32,8 @@ public:
 
 	static Matrix4x4f Perspective(float fovy, float aspectRatio, float zNear, float zFar);
 
+	static Matrix4x4f LookAt(const Vector3f& position, const Vector3f& direction, const Vector3f& up);
+
 	static Matrix4x4f Scale(Vector3f scale);
 
 	static Matrix4x4f Scale(float x, float y, float z);

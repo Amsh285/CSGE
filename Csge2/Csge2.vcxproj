@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\data\Matrix3x3f.cpp" />
     <ClCompile Include="src\geometry\Geometry.cpp" />
     <ClCompile Include="src\data\IndexedVertexSet.cpp" />
     <ClCompile Include="src\geometry\Quad.cpp" />
@@ -42,6 +43,7 @@
     <ClCompile Include="src\data\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\data\Matrix3x3f.h" />
     <ClInclude Include="src\geometry\Geometry.h" />
     <ClInclude Include="src\data\IndexedVertexSet.h" />
     <ClInclude Include="src\geometry\Quad.h" />

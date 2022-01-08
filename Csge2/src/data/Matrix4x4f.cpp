@@ -100,6 +100,45 @@ Matrix4x4f Matrix4x4f::Perspective(float fovy, float aspectRatio, float zNear, f
 	});
 }
 
+Matrix4x4f Matrix4x4f::LookAt(const Vector3f& position, const Vector3f& direction, const Vector3f& up)
+{
+	Vector3f forward = (direction - position).Normalize();
+	
+	// https://en.wikipedia.org/wiki/Cross_product
+	// crossproduct is anti commutative b x a = -(a x b)
+	// we use a left hand coordinate system
+	// (-1, 0, 0) is right when facing (0,0,-1)
+	// this is a general definition of right!
+	Vector3f right = up
+		.CrossProduct(forward)
+		.Normalize();
+
+	Vector3f realUp = forward
+		.CrossProduct(right)
+		.Normalize();
+
+	/*Vector3f right = forward
+		.CrossProduct(up)
+		.Normalize();
+
+	Vector3f realUp = right
+		.CrossProduct(forward)
+		.Normalize();*/
+
+	Matrix4x4f translation = Matrix4x4f::Translate(position * (-1));
+
+	Vector3f backwards = forward * (-1);
+
+	Matrix4x4f align = Matrix4x4f(
+		right.X()	, realUp.X()	, backwards.X()		, 0.0f,
+		right.Y()	, realUp.Y()	, backwards.Y()		, 0.0f,
+		right.Z()	, realUp.Z()	, backwards.Z()		, 0.0f,
+		0.0f		, 0.0f			, 0.0f				, 1.0f
+	);
+
+	return align * translation;
+}
+
 Matrix4x4f Matrix4x4f::Scale(Vector3f scale)
 {
 	return Scale(scale.X(), scale.Y(), scale.Z());

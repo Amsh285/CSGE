@@ -24,6 +24,8 @@
 
 #include "geometry/Quad.h"
 
+#include "data/Matrix3x3f.h"
+
 std::vector<Quad> quads;
 
 IndexedVertexSet* quadSet;
@@ -45,7 +47,7 @@ int g_height = 768;
 //
 void LoadMvp()
 {
-	g_mvp = Matrix4x4f::Perspective(45.0f, (float)g_width / g_height, 0.1f, 100.0f);
+	g_mvp = Matrix4x4f::Perspective(45.0f, (float)g_width / g_height, 0.1f, 150.0f);
 }
 
 void resize(GLFWwindow* window, int width, int height)
@@ -116,7 +118,7 @@ void LoadShaders()
 void BuildGeometries()
 {
 	Quad quad1;
-	quad1.Transform().Position() = Vector3f(10.0f, -10.0f, -50.0f);
+	quad1.Transform().Position() = Vector3f(15.0f, -10.0f, -50.0f);
 	quad1.Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
 	quad1.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
 
@@ -132,7 +134,7 @@ void BuildGeometries()
 
 	Quad quad3;
 	quad3.Transform().Position() = Vector3f(-5.0f, -5.0f, -50.0f);
-	quad3.Transform().Rotation() = Vector3f(0.0f, -45.0f, 0.0f);
+	quad3.Transform().Rotation() = Vector3f(0.0f, 45.0f, 0.0f);
 	quad3.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
 	quad3.UseTexture("texarray", "texcolmultiply");
 
@@ -204,6 +206,9 @@ void ExecuteWindow(GLFWwindow* window)
 	LoadTextures();
 	LoadShaders();
 
+	Vector3f direction = Matrix3x3f::RotationY(10.0f) * Vector3f::Forward();
+	Matrix4x4f cameraProjection = Matrix4x4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), direction, Vector3f::Up());
+
 	Renderer renderer;
 	std::vector<RenderingContext> contexts;
 
@@ -216,7 +221,10 @@ void ExecuteWindow(GLFWwindow* window)
 
 		/* Render here */
 		renderer.Clear();
-		renderer.SetPerspective(g_mvp);
+
+		Matrix4x4f projection = g_mvp * cameraProjection;
+
+		renderer.SetPerspective(projection);
 
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
 			renderer.Draw(*it, g_textures);
