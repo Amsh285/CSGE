@@ -35,7 +35,8 @@ void Renderer::Draw(Geometry& geometry, const VertexArray& va, const IndexBuffer
 	Matrix4x4f transformations = geometry.Transform().GetTransformationMatrix();
 	std::vector<float> v_Transform = transformations.GetOpenGlRepresentation();
 
-	shaderProgram.SetUniformMat4f("u_MVP", &mvp[0]);
+	/*shaderProgram.SetUniformMat4f("u_MVP", &mvp[0]);*/
+	shaderProgram.SetUniformMat4f("u_MVP", m_Perspective_glm_Test);
 	shaderProgram.SetUniformMat4f("u_Transform", &v_Transform[0]);
 	
 	if (geometry.UseTexture())

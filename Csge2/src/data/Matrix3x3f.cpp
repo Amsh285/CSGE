@@ -23,6 +23,15 @@ Matrix3x3f::Matrix3x3f(float v00, float v01, float v02, float v10, float v11, fl
 	m_Data.push_back(row2);
 }
 
+Matrix3x3f Matrix3x3f::Transpose() const
+{
+	return Matrix3x3f(
+		m_Data[0][0], m_Data[1][0], m_Data[2][0],
+		m_Data[0][1], m_Data[1][1], m_Data[2][1],
+		m_Data[0][1], m_Data[1][2], m_Data[2][2]
+	);
+}
+
 Vector3f Matrix3x3f::operator*(Vector3f value) const
 {
 	float x = value.X(), y = value.Y(), z = value.Z();
@@ -31,6 +40,28 @@ Vector3f Matrix3x3f::operator*(Vector3f value) const
 		x * m_Data[0][0] + y * m_Data[0][1] + z * m_Data[0][2],
 		x * m_Data[1][0] + y * m_Data[1][1] + z * m_Data[1][2],
 		x * m_Data[2][0] + y * m_Data[2][1] + z * m_Data[2][2]
+	);
+}
+
+float Matrix3x3f::Determinant() const
+{
+	return m_Data[0][0] * m_Data[1][1] * m_Data[2][2]
+		+ m_Data[0][1] * m_Data[1][2] * m_Data[2][0]
+		+ m_Data[0][2] * m_Data[1][0] * m_Data[2][1]
+
+		- m_Data[2][0] * m_Data[1][1] * m_Data[0][2]
+		- m_Data[2][1] * m_Data[1][2] * m_Data[0][0]
+		- m_Data[2][2] * m_Data[1][0] * m_Data[0][1];
+}
+
+Matrix3x3f Matrix3x3f::RotationX(const float& angle)
+{
+	float a = MathHelper::convertToRad(angle);
+
+	return Matrix3x3f(
+		1.0f		, 0.0f		, 0.0f,
+		0.0f		, cos(a)	, -sin(a),
+		0.0f		, sin(a)	, cos(a)
 	);
 }
 

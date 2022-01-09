@@ -19,8 +19,13 @@ public:
 		float v10, float v11, float v12,
 		float v20, float v21, float v22);
 	
+	Matrix3x3f Transpose() const;
+
 	Vector3f operator*(Vector3f value) const;
 
+	float Determinant() const;
+
+	static Matrix3x3f RotationX(const float& angle);
 	static Matrix3x3f RotationY(const float& angle);
 private:
 	std::vector<std::vector<float>> m_Data;

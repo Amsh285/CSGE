@@ -13,6 +13,8 @@
 #include "infrastructure/MathHelper.h"
 #include "data/Matrix4x4f.h"
 #include "data/Texture.h"
+#include "scene/Camera.h"
+#include "ui/MousePosition.h"
 
 #include "Utility.h"
 
@@ -26,6 +28,11 @@
 
 #include "data/Matrix3x3f.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+
+Camera tfc;
+
 std::vector<Quad> quads;
 
 IndexedVertexSet* quadSet;
@@ -36,18 +43,20 @@ std::map<std::string, ShaderProgram*> g_ShaderPrograms;
 std::map<std::string, Texture*> g_textures;
 
 Matrix4x4f g_mvp;
+glm::mat4 g_mvp_glm;
 
 int g_width = 1024;
 int g_height = 768;
-//
-//void ErrorCallback(int error_code, const char* description)
-//{
-//	std::cout << "Error: Code: " << error_code << " - " << description << std::endl;
-//}
-//
+
+MousePosition mouseDown, mouseUp;
+
+const std::pair<float, float> thresholdDeltaY(30.0f, -30.0f);
+const std::pair<float, float> thresholdDeltaX(30.0f, -30.0f);
+
 void LoadMvp()
 {
 	g_mvp = Matrix4x4f::Perspective(45.0f, (float)g_width / g_height, 0.1f, 150.0f);
+	g_mvp_glm = glm::perspective(45.0f, (float)g_width / g_height, 0.1f, 150.0f);
 }
 
 void resize(GLFWwindow* window, int width, int height)
@@ -62,10 +71,85 @@ void resize(GLFWwindow* window, int width, int height)
 	LoadMvp();
 }
 
-void processInput(GLFWwindow* window)
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	else if (key == 89 && action == GLFW_PRESS)
+		tfc.Reset();
+	else if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	{
+		Vector3f newPosition = tfc.GetPosition() + tfc.GetDirection();
+		tfc.SetPosition(newPosition);
+
+		Vector3f pos = tfc.GetPosition();
+		Vector3f dir = tfc.GetDirection();
+
+		std::cout << "direction: x" << dir.X() << " y: " << dir.Y() << " z: " << dir.Y() << std::endl;
+		std::cout << "newPosition: x: " << pos.X() << " y: " << pos.Y() << " z: " << pos.Z() << std::endl;
+	}
+	else if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	{
+		Vector3f direction = tfc.GetDirection();
+		Vector3f position = tfc.GetPosition();
+		Vector3f backwards = position - direction;
+		tfc.SetPosition(backwards);
+	}
+	else if (key == GLFW_KEY_D && action == GLFW_PRESS)
+	{
+
+	}
+	else if (key == GLFW_KEY_A && action == GLFW_PRESS)
+	{
+	}
+}
+
+void OnMouseButtonLeftUp(const MousePosition& down, const MousePosition& up)
+{
+	int deltaY = up.X - down.X;
+	int deltaX = down.Y - up.Y;
+
+	bool insideYThreshold = deltaY <= thresholdDeltaY.first && deltaY >= thresholdDeltaY.second;
+	bool insideXThreshold = deltaX <= thresholdDeltaX.first && deltaX >= thresholdDeltaX.second;
+
+	if (insideYThreshold)
+		deltaY = 0;
+
+	if (insideXThreshold)
+		deltaX = 0;
+
+	float ratioY = g_width / 90;
+	float ratioX = g_height / 60;
+
+	float angleY = std::fmod(tfc.GetRotationAngleY() + deltaY / ratioY, 360.0f);
+	std::cout << "angleY: " << angleY << std::endl;
+	float angleX = tfc.GetRotationAngleX() + deltaX / ratioX;
+
+	if (angleX > 89.0f)
+		angleX = 89.0f;
+	else if (angleX < -89.0f)
+		angleX = -89.0f;
+
+	std::cout << "Pitch: " << std::to_string(angleX) << " - Yaw: " << std::to_string(angleY) << std::endl;
+	tfc.SetAngles(angleX, angleY);
+
+	Vector3f direction = tfc.GetDirection();
+
+	std::cout << "Camera direction x: " << direction.X() << " y: " << direction.Y() << " z: " << direction.Z() << std::endl;
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_1)
+	{
+		if (action == GLFW_PRESS)
+			glfwGetCursorPos(window, &mouseDown.X, &mouseDown.Y);
+		else if (action == GLFW_RELEASE)
+		{
+			glfwGetCursorPos(window, &mouseUp.X, &mouseUp.Y);
+			OnMouseButtonLeftUp(mouseDown, mouseUp);
+		}
+	}
 }
 
 void LoadVertexSets()
@@ -206,9 +290,6 @@ void ExecuteWindow(GLFWwindow* window)
 	LoadTextures();
 	LoadShaders();
 
-	Vector3f direction = Matrix3x3f::RotationY(10.0f) * Vector3f::Forward();
-	Matrix4x4f cameraProjection = Matrix4x4f::LookAt(Vector3f(0.0f, 0.0f, 0.0f), direction, Vector3f::Up());
-
 	Renderer renderer;
 	std::vector<RenderingContext> contexts;
 
@@ -217,14 +298,21 @@ void ExecuteWindow(GLFWwindow* window)
 
 	while (!glfwWindowShouldClose(window))
 	{
-		processInput(window);
-
 		/* Render here */
 		renderer.Clear();
 
+		// https://www.youtube.com/watch?v=mpTl003EXCY&t=2s&ab_channel=UCDavisAcademics
+		Vector3f direction = tfc.GetPosition() + tfc.GetDirection();
+		Vector3f position = tfc.GetPosition();
+		Matrix4x4f cameraProjection = Matrix4x4f::LookAt(position, direction, Vector3f::Up());;
+
+		glm::mat4 matCam_glm = glm::lookAt(glm::vec3(position.X(), position.Y(), position.Z()), glm::vec3(direction.X(), direction.Y(), direction.Z()), glm::vec3(0.0f, 1.0f, 0.0f));
+
 		Matrix4x4f projection = g_mvp * cameraProjection;
+		glm::mat4 projection_glm = g_mvp_glm * matCam_glm;
 
 		renderer.SetPerspective(projection);
+		renderer.SetPerspectivef(&projection_glm[0][0]);
 
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
 			renderer.Draw(*it, g_textures);
@@ -284,11 +372,10 @@ int main(void)
 	}
 
 	glfwSetFramebufferSizeCallback(window, resize);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	ExecuteWindow(window);
-
-	/*glfwSetErrorCallback(ErrorCallback);*/
-	
 	glfwTerminate();
 
 	return 0;

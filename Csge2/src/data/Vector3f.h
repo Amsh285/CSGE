@@ -23,6 +23,8 @@ public:
 
 	Vector3f operator*(const float& scalar) const;
 
+	float operator*(const Vector3f& other) const;
+
 	Vector3f CrossProduct(const Vector3f& value) const;
 
 	float GetLength() const;

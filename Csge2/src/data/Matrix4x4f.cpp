@@ -68,6 +68,64 @@ Matrix4x4f Matrix4x4f::operator*(const Matrix4x4f& other) const
 	return Matrix4x4f(mat);
 }
 
+float Matrix4x4f::Determinant() const
+{
+	float factor00 = m_Data[0][0];
+
+	Matrix3x3f m00(
+		m_Data[1][1], m_Data[1][2], m_Data[1][3],
+		m_Data[2][1], m_Data[2][2], m_Data[2][3],
+		m_Data[3][1], m_Data[3][2], m_Data[3][3]
+	);
+
+	float factor01 = -1.0f * m_Data[0][1];
+
+	Matrix3x3f m01 (
+		m_Data[1][0], m_Data[1][2], m_Data[1][3],
+		m_Data[2][0], m_Data[2][2], m_Data[2][3],
+		m_Data[3][0], m_Data[3][2], m_Data[3][3]
+	);
+
+	float factor02 = m_Data[0][2];
+
+	Matrix3x3f m02(
+		m_Data[1][0], m_Data[1][1], m_Data[1][3],
+		m_Data[2][0], m_Data[2][1], m_Data[2][3],
+		m_Data[3][0], m_Data[3][1], m_Data[3][3]
+	);
+
+	float factor03 = -1.0f * m_Data[0][3];
+
+	Matrix3x3f m03(
+		m_Data[1][0], m_Data[1][1], m_Data[1][2],
+		m_Data[2][0], m_Data[2][1], m_Data[2][2],
+		m_Data[3][0], m_Data[3][1], m_Data[3][2]
+	);
+
+	float det1 = m00.Determinant();
+	float det2 = m01.Determinant();
+	float det3 = m02.Determinant();
+	float det4 = m03.Determinant();
+
+	float f1 = factor00 * m00.Determinant();
+	float f2 = factor01 * m01.Determinant();
+	float f3 = factor02 * m02.Determinant();
+	float f4 = factor03 * m03.Determinant();
+
+	return factor00 * m00.Determinant() + factor01 * m01.Determinant()
+		+ factor02 * m02.Determinant() + factor03 * m03.Determinant();
+}
+
+Matrix4x4f Matrix4x4f::Transpose() const
+{
+	return Matrix4x4f(
+		m_Data[0][0], m_Data[1][0], m_Data[2][0], m_Data[3][0],
+		m_Data[0][1], m_Data[1][1], m_Data[2][1], m_Data[3][1],
+		m_Data[0][2], m_Data[1][2], m_Data[2][2], m_Data[3][2],
+		m_Data[0][3], m_Data[1][3], m_Data[2][3], m_Data[3][3]
+	);
+}
+
 std::vector<float> Matrix4x4f::GetOpenGlRepresentation() const
 {
 	std::vector<float> matOpenGl;
@@ -103,37 +161,24 @@ Matrix4x4f Matrix4x4f::Perspective(float fovy, float aspectRatio, float zNear, f
 Matrix4x4f Matrix4x4f::LookAt(const Vector3f& position, const Vector3f& direction, const Vector3f& up)
 {
 	Vector3f forward = (direction - position).Normalize();
-	
-	// https://en.wikipedia.org/wiki/Cross_product
-	// crossproduct is anti commutative b x a = -(a x b)
-	// we use a left hand coordinate system
-	// (-1, 0, 0) is right when facing (0,0,-1)
-	// this is a general definition of right!
-	Vector3f right = up
-		.CrossProduct(forward)
-		.Normalize();
 
-	Vector3f realUp = forward
-		.CrossProduct(right)
-		.Normalize();
-
-	/*Vector3f right = forward
+	Vector3f right = forward
 		.CrossProduct(up)
 		.Normalize();
 
 	Vector3f realUp = right
 		.CrossProduct(forward)
-		.Normalize();*/
+		.Normalize();
 
 	Matrix4x4f translation = Matrix4x4f::Translate(position * (-1));
 
 	Vector3f backwards = forward * (-1);
 
 	Matrix4x4f align = Matrix4x4f(
-		right.X()	, realUp.X()	, backwards.X()		, 0.0f,
-		right.Y()	, realUp.Y()	, backwards.Y()		, 0.0f,
-		right.Z()	, realUp.Z()	, backwards.Z()		, 0.0f,
-		0.0f		, 0.0f			, 0.0f				, 1.0f
+		right.X(), realUp.X(), backwards.X(), 0.0f,
+		right.Y(), realUp.Y(), backwards.Y(), 0.0f,
+		right.Z(), realUp.Z(), backwards.Z(), 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
 	);
 
 	return align * translation;

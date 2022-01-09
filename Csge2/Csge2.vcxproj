@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\scene\Camera.cpp" />
     <ClCompile Include="src\data\Matrix3x3f.cpp" />
     <ClCompile Include="src\geometry\Geometry.cpp" />
     <ClCompile Include="src\data\IndexedVertexSet.cpp" />
@@ -43,6 +44,7 @@
     <ClCompile Include="src\data\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\scene\Camera.h" />
     <ClInclude Include="src\data\Matrix3x3f.h" />
     <ClInclude Include="src\geometry\Geometry.h" />
     <ClInclude Include="src\data\IndexedVertexSet.h" />
@@ -56,6 +58,7 @@
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\ui\MousePosition.h" />
     <ClInclude Include="src\Utility.h" />
     <ClInclude Include="src\vendor\stb_image\stb_image.h" />
     <ClInclude Include="src\VertexArray.h" />
@@ -142,7 +145,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Csge2\dependencies\glew-2.1.0\include;$(SolutionDir)Csge2\dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Csge2\dependencies\glew-2.1.0\include;$(SolutionDir)Csge2\dependencies\glfw\include;$(SolutionDir)Csge2\external\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,7 +162,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Csge2\dependencies\glew-2.1.0\include;$(SolutionDir)Csge2\dependencies\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Csge2\dependencies\glew-2.1.0\include;$(SolutionDir)Csge2\dependencies\glfw\include;$(SolutionDir)Csge2\external\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

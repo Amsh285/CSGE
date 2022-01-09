@@ -20,6 +20,8 @@ public:
 	void SetPerspective(float fovy, float aspectRatio, float zNear, float zFar);
 	void SetPerspective(Matrix4x4f& mvp);
 
+	void SetPerspectivef(float* glm_test) { m_Perspective_glm_Test = glm_test; };
+
 	Renderer();
 
 	void Clear();
@@ -29,4 +31,5 @@ public:
 	~Renderer();
 private:
 	Matrix4x4f m_Perspective;
+	float* m_Perspective_glm_Test;
 };

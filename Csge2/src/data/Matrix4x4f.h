@@ -7,6 +7,7 @@
 
 #include "../infrastructure/MathHelper.h"
 #include "Vector3f.h"
+#include "Matrix3x3f.h"
 
 class Matrix4x4f
 {
@@ -27,6 +28,10 @@ public:
 	Matrix4x4f(const std::vector<std::vector<float>>& data);
 
 	Matrix4x4f operator*(const Matrix4x4f& other) const;
+
+	float Determinant() const;
+
+	Matrix4x4f Transpose() const;
 
 	std::vector<float> GetOpenGlRepresentation() const;
 
