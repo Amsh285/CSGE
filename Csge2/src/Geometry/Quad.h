@@ -14,4 +14,5 @@ public:
 	Quad();
 
 	static IndexedVertexSet* GetVertices();
+	static IndexedVertexSet* GetVertices24();
 };

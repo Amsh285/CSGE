@@ -154,7 +154,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void LoadVertexSets()
 {
-	quadSet = Quad::GetVertices();
+	/*quadSet = Quad::GetVertices();*/
+	quadSet = Quad::GetVertices24();
 }
 
 void LoadTextures()
@@ -210,7 +211,7 @@ void BuildGeometries()
 
 	Quad* quad2 = new Quad();
 	quad2->Transform().Position() = Vector3f(-5.0f, 5.0f, -50.0f);
-	quad2->Transform().Rotation() = Vector3f(0.0f, -45.0f, 0.0f);
+	quad2->Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
 	quad2->Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
 	quad2->UseTexture("badgers", "texcolmultiply");
 
@@ -286,13 +287,17 @@ RenderingContext GetRenderingContext(Quad* quad)
 void Animations()
 {
 	TimeStep delta = delta_time.GetStepForCurrentFrame();
+	float addRotation = -45.0f * delta;
+
+	Quad* badger = g_quads.at(1);
+	Vector3f bRotation = badger->Transform().Rotation();
+	float newRotationX = std::fmod(bRotation.X() + addRotation, 360.0f);
+	badger->Transform().Rotation().X() = newRotationX;
 
 	Quad* texcolMult = g_quads.at(2);
-	Vector3f rotation = texcolMult->Transform().Rotation();
-
-	float addRotation = 45.0f * delta;
-	float newRotation = std::fmod(rotation.Y() + addRotation, 360.0f);
-	texcolMult->Transform().Rotation().Y() = newRotation;
+	Vector3f txRotation = texcolMult->Transform().Rotation();
+	float newRotationY = std::fmod(txRotation.Y() + addRotation, 360.0f);
+	texcolMult->Transform().Rotation().Y() = newRotationY;
 }
 
 void ExecuteWindow(GLFWwindow* window)

@@ -14,6 +14,7 @@ public:
 	const IndexBuffer& GetIndexBuffer() const { return m_IndexBuffer; };
 	ShaderProgram& GetShaderProgram() { return m_ShaderProgram; };
 
+	//Todo: Copy ctor
 	RenderingContext(Geometry* geometry, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram);
 
 	void Dispose();

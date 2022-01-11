@@ -10,7 +10,7 @@ public:
 	std::vector<Vertex>& GetVertices() { return m_VertexSet; };
 	std::vector<unsigned int>& GetIndices() { return m_Indices; };
 
-	IndexedVertexSet(std::vector<Vertex> vertexSet, std::vector<unsigned int> indices);
+	IndexedVertexSet(const std::vector<Vertex>& vertexSet, const std::vector<unsigned int>& indices);
 private:
 	std::vector<Vertex> m_VertexSet;
 	std::vector<unsigned int> m_Indices;
