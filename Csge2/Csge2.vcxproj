@@ -43,6 +43,7 @@
     <ClCompile Include="src\data\Vertex.cpp" />
     <ClCompile Include="src\data\Vector4f.cpp" />
     <ClCompile Include="src\data\Texture.cpp" />
+    <ClCompile Include="src\geometry\Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\infrastructure\DeltaTime.h" />
@@ -70,6 +71,7 @@
     <ClInclude Include="src\data\Vertex.h" />
     <ClInclude Include="src\data\Vector4f.h" />
     <ClInclude Include="src\data\Texture.h" />
+    <ClInclude Include="src\geometry\Triangle.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="src\shaders\fragmentshaders\texture_color_multiplyfragmenshader.shader" />

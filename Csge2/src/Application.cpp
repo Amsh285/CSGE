@@ -26,6 +26,7 @@
 #include "VertexBufferLayout.h"
 
 #include "geometry/Quad.h"
+#include "geometry/Triangle.h"
 
 #include "data/Matrix3x3f.h"
 
@@ -55,6 +56,7 @@ MousePosition mouseDown, mouseUp;
 const std::pair<float, float> thresholdDeltaY(30.0f, -30.0f);
 const std::pair<float, float> thresholdDeltaX(30.0f, -30.0f);
 
+std::vector<Triangle> windowTriangles;
 std::vector<float> windowVertices;
 
 void LoadMvp()
@@ -236,8 +238,81 @@ void BuildGeometries()
 	g_quads.push_back(quad4);
 }
 
+int comparer(const void* a, const void* b)
+{
+	Vector3f pos = tfc.GetPosition();
+	glm::vec3 cameraPosition(pos.X(), pos.Y(), pos.Z());
+
+	glm::vec3 centroidA = (*(Triangle*)a).GetCentroid();
+	glm::vec3 centroidB = (*(Triangle*)b).GetCentroid();
+
+	float lengthA = glm::length(cameraPosition - centroidA);
+	float lengthB = glm::length(cameraPosition - centroidB);
+
+	return lengthB - lengthA;
+}
+
+std::vector<float> GetWindowVertices(const glm::vec3& cameraPosition)
+{
+	std::vector<float> vertices;
+
+	std::qsort(windowTriangles.data(), windowTriangles.size(), sizeof(Triangle), comparer);
+
+	for (size_t i = 0; i < windowTriangles.size(); i++)
+	{
+		Triangle& current = windowTriangles.at(i);
+
+		vertices.push_back(current.p1.x); vertices.push_back(current.p1.y); vertices.push_back(current.p1.z);
+		vertices.push_back(current.c1.r); vertices.push_back(current.c1.g); vertices.push_back(current.c1.b); vertices.push_back(current.c1.a);
+		vertices.push_back(current.tx1.x); vertices.push_back(current.tx1.y);
+
+		vertices.push_back(current.p2.x); vertices.push_back(current.p2.y); vertices.push_back(current.p2.z);
+		vertices.push_back(current.c2.r); vertices.push_back(current.c2.g); vertices.push_back(current.c2.b); vertices.push_back(current.c2.a);
+		vertices.push_back(current.tx2.x); vertices.push_back(current.tx2.y);
+
+		vertices.push_back(current.p3.x); vertices.push_back(current.p3.y); vertices.push_back(current.p3.z);
+		vertices.push_back(current.c3.r); vertices.push_back(current.c3.g); vertices.push_back(current.c3.b); vertices.push_back(current.c3.a);
+		vertices.push_back(current.tx3.x); vertices.push_back(current.tx3.y);
+	}
+
+	return vertices;
+}
+
 void BuildWindows()
 {
+	Triangle t1(
+		glm::vec3(-20.0f, -20.0f, -10.0f), glm::vec3(20.0f, -20.0f, -10.0f), glm::vec3(20.0f, 20.0f, -10.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 0.4f), glm::vec4(1.0f, 0.0f, 0.0f, 0.4f), glm::vec4(1.0f, 0.0f, 0.0f, 0.4f),
+		glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)
+	);
+	t1.SetTag("t1");
+
+	Triangle t2(
+		glm::vec3(20.0f, 20.0f, -10.0f), glm::vec3(-20.0f, 20.0f, -10.0f), glm::vec3(-20.0f, -20.0f, -10.0f),
+		glm::vec4(0.0f, 1.0f, 0.0f, 0.4f), glm::vec4(0.0f, 1.0f, 0.0f, 0.4f), glm::vec4(0.0f, 1.0f, 0.0f, 0.4f),
+		glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)
+	);
+	t2.SetTag("t2");
+
+	Triangle t3(
+		glm::vec3(-20.0f, -20.0f, -20.0f), glm::vec3(20.0f, -20.0f, -20.0f), glm::vec3(20.0f, 20.0f, -20.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.4f), glm::vec4(0.0f, 0.0f, 1.0f, 0.4f), glm::vec4(0.0f, 0.0f, 1.0f, 0.4f),
+		glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)
+	);
+	t3.SetTag("t3");
+
+	Triangle t4(
+		glm::vec3(20.0f, 20.0f, -20.0f), glm::vec3(-20.0f, 20.0f, -20.0f), glm::vec3(-20.0f, -20.0f, -20.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.4f), glm::vec4(0.0f, 0.0f, 1.0f, 0.4f), glm::vec4(0.0f, 0.0f, 1.0f, 0.4f),
+		glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)
+	);
+	t4.SetTag("t4");
+
+	windowTriangles.push_back(t4);
+	windowTriangles.push_back(t3);
+	windowTriangles.push_back(t2);
+	windowTriangles.push_back(t1);
+
 	//windowVertices = {
 	//	/*positions */				/*colors*/						/*tex coords: wont use*/
 	//	-20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
@@ -246,19 +321,11 @@ void BuildWindows()
 
 	//	20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
 	//	-20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
-	//	20.0f, -20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f
+	//	-20.0f, -20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f
 	//};
 
-	windowVertices = {
-		/*positions */				/*colors*/						/*tex coords: wont use*/
-		-20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
-		20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
-		20.0f, 20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
-
-		20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
-		-20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
-		-20.0f, -20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f
-	};
+	/*To make blending work for multiple objects we have to draw the most distant object first
+	and the closest object last.*/
 }
 
 void init(GLFWwindow* window, int width, int height)
@@ -334,20 +401,17 @@ void ExecuteWindow(GLFWwindow* window)
 	LoadTextures();
 	LoadShaders();
 
-	
-
-	
+#pragma region blending refactor
+	Vector3f cameraPosition = tfc.GetPosition();
+	std::vector<float> wv = GetWindowVertices(glm::vec3(cameraPosition.X(), cameraPosition.Y(), cameraPosition.Z()));
 
 	VertexArray vaWindow;
-	VertexBuffer vbWindow(&windowVertices[0], windowVertices.size() * sizeof(float));
+	VertexBuffer vbWindow(&wv[0], wv.size() * sizeof(float));
 	VertexBufferLayout vbLayoutWindow;
 	vbLayoutWindow.Push<float>(3);
 	vbLayoutWindow.Push<float>(4);
 	vbLayoutWindow.Push<float>(2);
-	vaWindow.AddBuffer(vbWindow, vbLayoutWindow);
-
-
-
+#pragma endregion
 
 	Renderer renderer;
 	std::vector<RenderingContext> contexts;
@@ -376,6 +440,9 @@ void ExecuteWindow(GLFWwindow* window)
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
 			renderer.Draw(*it, g_textures);
 
+#pragma region blending refactor
+		cameraPosition = tfc.GetPosition();
+		wv = GetWindowVertices(glm::vec3(cameraPosition.X(), cameraPosition.Y(), cameraPosition.Z()));
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC1_ALPHA);
@@ -384,13 +451,21 @@ void ExecuteWindow(GLFWwindow* window)
 		glm::mat4 transform(1.0f);
 
 		vaWindow.Bind();
+		vbWindow.Bind();
+
+		GLCall(glBufferData(GL_ARRAY_BUFFER, wv.size() * sizeof(float), &wv[0], GL_STATIC_DRAW));
+		vaWindow.AddBuffer(vbWindow, vbLayoutWindow);
+
 		windowProgram->Bind();
 		windowProgram->SetUniformMat4f("u_MVP", &projection_glm[0][0]);
 		windowProgram->SetUniformMat4f("u_Transform", &transform[0][0]);
 
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
 		GLCall(glDrawArrays(GL_TRIANGLES, 3, 6));
+		GLCall(glDrawArrays(GL_TRIANGLES, 6, 9));
+		GLCall(glDrawArrays(GL_TRIANGLES, 9, 12));
 		glDisable(GL_BLEND);
+#pragma endregion
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -454,6 +529,7 @@ int main(void)
 	glfwSetFramebufferSizeCallback(window, resize);
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
+
 
 	ExecuteWindow(window);
 	glfwTerminate();

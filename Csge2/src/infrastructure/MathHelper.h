@@ -11,4 +11,6 @@ namespace MathHelper
 	double convertToRad(const double& degree);
 
 	std::vector<float> BuildPerspectiveProjectionMatrixGLCenter(float fovy, float aspectRatio, float zNear, float zFar);
+
+	
 }
