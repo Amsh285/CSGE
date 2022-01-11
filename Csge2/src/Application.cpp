@@ -55,6 +55,8 @@ MousePosition mouseDown, mouseUp;
 const std::pair<float, float> thresholdDeltaY(30.0f, -30.0f);
 const std::pair<float, float> thresholdDeltaX(30.0f, -30.0f);
 
+std::vector<float> windowVertices;
+
 void LoadMvp()
 {
 	g_mvp = Matrix4x4f::Perspective(45.0f, (float)g_width / g_height, 0.1f, 150.0f);
@@ -234,6 +236,31 @@ void BuildGeometries()
 	g_quads.push_back(quad4);
 }
 
+void BuildWindows()
+{
+	//windowVertices = {
+	//	/*positions */				/*colors*/						/*tex coords: wont use*/
+	//	-20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
+	//	20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
+	//	20.0f, 20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
+
+	//	20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
+	//	-20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
+	//	20.0f, -20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f
+	//};
+
+	windowVertices = {
+		/*positions */				/*colors*/						/*tex coords: wont use*/
+		-20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
+		20.0f, -20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
+		20.0f, 20.0f, -10.0f		, 1.0f, 0.0f, 0.0, 0.4f,		0.0f, 0.0f,
+
+		20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
+		-20.0f, 20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f,
+		-20.0f, -20.0f, -10.0f		, 0.0f, 1.0f, 0.0, 0.4f,		0.0f, 0.0f
+	};
+}
+
 void init(GLFWwindow* window, int width, int height)
 {
 	if (height == 0)
@@ -307,6 +334,21 @@ void ExecuteWindow(GLFWwindow* window)
 	LoadTextures();
 	LoadShaders();
 
+	
+
+	
+
+	VertexArray vaWindow;
+	VertexBuffer vbWindow(&windowVertices[0], windowVertices.size() * sizeof(float));
+	VertexBufferLayout vbLayoutWindow;
+	vbLayoutWindow.Push<float>(3);
+	vbLayoutWindow.Push<float>(4);
+	vbLayoutWindow.Push<float>(2);
+	vaWindow.AddBuffer(vbWindow, vbLayoutWindow);
+
+
+
+
 	Renderer renderer;
 	std::vector<RenderingContext> contexts;
 
@@ -333,6 +375,22 @@ void ExecuteWindow(GLFWwindow* window)
 
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
 			renderer.Draw(*it, g_textures);
+
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC1_ALPHA);
+
+		ShaderProgram* windowProgram = g_ShaderPrograms["default"];
+		glm::mat4 transform(1.0f);
+
+		vaWindow.Bind();
+		windowProgram->Bind();
+		windowProgram->SetUniformMat4f("u_MVP", &projection_glm[0][0]);
+		windowProgram->SetUniformMat4f("u_Transform", &transform[0][0]);
+
+		GLCall(glDrawArrays(GL_TRIANGLES, 0, 3));
+		GLCall(glDrawArrays(GL_TRIANGLES, 3, 6));
+		glDisable(GL_BLEND);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -366,6 +424,8 @@ int main(void)
 	LoadMvp();
 	LoadVertexSets();
 	BuildGeometries();
+
+	BuildWindows();
 
 	GLFWwindow* window;
 
