@@ -9,16 +9,16 @@
 class RenderingContext
 {
 public:
-	Geometry& GetGeometry() { return m_Geometry; };
+	Geometry* GetGeometry() { return m_Geometry; };
 	const VertexArray& GetVertexArray() const { return m_VertexArray; };
 	const IndexBuffer& GetIndexBuffer() const { return m_IndexBuffer; };
 	ShaderProgram& GetShaderProgram() { return m_ShaderProgram; };
 
-	RenderingContext(Geometry& geometry, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram);
+	RenderingContext(Geometry* geometry, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram);
 
 	void Dispose();
 private:
-	Geometry m_Geometry;
+	Geometry* m_Geometry;
 	VertexArray m_VertexArray;
 	IndexBuffer m_IndexBuffer;
 	VertexBuffer m_VertexBuffer;

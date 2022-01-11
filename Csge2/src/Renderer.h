@@ -26,7 +26,7 @@ public:
 
 	void Clear();
 	void Draw(RenderingContext& context, std::map<std::string, Texture*> textures);
-	void Draw(Geometry& geometry, const VertexArray& va, const IndexBuffer& ib, ShaderProgram& shaderProgram, std::map<std::string, Texture*> textures);
+	void Draw(Geometry* geometry, const VertexArray& va, const IndexBuffer& ib, ShaderProgram& shaderProgram, std::map<std::string, Texture*> textures);
 
 	~Renderer();
 private:

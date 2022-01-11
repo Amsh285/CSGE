@@ -14,6 +14,4 @@ public:
 	Quad();
 
 	static IndexedVertexSet* GetVertices();
-private:
-	Transforms m_Transform;
 };

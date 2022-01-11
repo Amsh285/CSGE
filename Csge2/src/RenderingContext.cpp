@@ -1,6 +1,6 @@
 #include "RenderingContext.h"
 
-RenderingContext::RenderingContext(Geometry& geometry, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram)
+RenderingContext::RenderingContext(Geometry* geometry, VertexArray& va, IndexBuffer& ib, VertexBuffer& vb, ShaderProgram& shaderProgram)
 	: m_Geometry(geometry), m_VertexArray(va), m_IndexBuffer(ib), m_VertexBuffer(vb), m_ShaderProgram(shaderProgram), m_Disposed(false)
 {
 }

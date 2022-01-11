@@ -10,6 +10,7 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 
+#include "infrastructure/DeltaTime.h"
 #include "infrastructure/MathHelper.h"
 #include "data/Matrix4x4f.h"
 #include "data/Texture.h"
@@ -31,9 +32,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+DeltaTime delta_time;
 Camera tfc;
 
-std::vector<Quad> quads;
+std::vector<Quad*> g_quads;
 
 IndexedVertexSet* quadSet;
 
@@ -90,14 +92,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	else if (key == GLFW_KEY_S && action == GLFW_PRESS)
 	{
-		Vector3f direction = tfc.GetDirection();
-		Vector3f position = tfc.GetPosition();
-		Vector3f backwards = position - direction;
+		Vector3f backwards = tfc.GetPosition() - tfc.GetDirection();
 		tfc.SetPosition(backwards);
 	}
 	else if (key == GLFW_KEY_D && action == GLFW_PRESS)
 	{
-
+		/*tfc.SetPosition(tfc.GetPosition() + Vector3f(1.0f, 0.0f, 0.0f));*/
 	}
 	else if (key == GLFW_KEY_A && action == GLFW_PRESS)
 	{
@@ -201,36 +201,36 @@ void LoadShaders()
 
 void BuildGeometries()
 {
-	Quad quad1;
-	quad1.Transform().Position() = Vector3f(15.0f, -10.0f, -50.0f);
-	quad1.Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
-	quad1.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
+	Quad* quad1 = new Quad();
+	quad1->Transform().Position() = Vector3f(15.0f, -10.0f, -50.0f);
+	quad1->Transform().Rotation() = Vector3f(0.0f, 0.0f, 0.0f);
+	quad1->Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
 
-	quads.push_back(quad1);
+	g_quads.push_back(quad1);
 
-	Quad quad2;
-	quad2.Transform().Position() = Vector3f(-5.0f, 5.0f, -50.0f);
-	quad2.Transform().Rotation() = Vector3f(0.0f, -45.0f, 0.0f);
-	quad2.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
-	quad2.UseTexture("badgers", "texcolmultiply");
+	Quad* quad2 = new Quad();
+	quad2->Transform().Position() = Vector3f(-5.0f, 5.0f, -50.0f);
+	quad2->Transform().Rotation() = Vector3f(0.0f, -45.0f, 0.0f);
+	quad2->Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
+	quad2->UseTexture("badgers", "texcolmultiply");
 
-	quads.push_back(quad2);
+	g_quads.push_back(quad2);
 
-	Quad quad3;
-	quad3.Transform().Position() = Vector3f(-5.0f, -5.0f, -50.0f);
-	quad3.Transform().Rotation() = Vector3f(0.0f, 45.0f, 0.0f);
-	quad3.Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
-	quad3.UseTexture("texarray", "texcolmultiply");
+	Quad* quad3 = new Quad();
+	quad3->Transform().Position() = Vector3f(-5.0f, -5.0f, -50.0f);
+	quad3->Transform().Rotation() = Vector3f(0.0f, 90.0f, 0.0f);
+	quad3->Transform().Scale() = Vector3f(5.0f, 5.0f, 5.0f);
+	quad3->UseTexture("texarray", "texcolmultiply");
 
-	quads.push_back(quad3);
+	g_quads.push_back(quad3);
 
-	Quad quad4;
-	quad4.Transform().Position() = Vector3f(-15.0f, -5.0f, -50.0f);
-	quad4.Transform().Rotation() = Vector3f(45.0f, 0.0f, 0.0f);
-	quad4.Transform().Scale() = Vector3f(5.0f, 20.0f, 5.0f);
-	quad4.UseTexture("awesomeface", "texcolmultiply");
+	Quad* quad4 = new Quad();
+	quad4->Transform().Position() = Vector3f(-15.0f, -5.0f, -50.0f);
+	quad4->Transform().Rotation() = Vector3f(45.0f, 0.0f, 0.0f);
+	quad4->Transform().Scale() = Vector3f(5.0f, 20.0f, 5.0f);
+	quad4->UseTexture("awesomeface", "texcolmultiply");
 
-	quads.push_back(quad4);
+	g_quads.push_back(quad4);
 }
 
 void init(GLFWwindow* window, int width, int height)
@@ -253,7 +253,7 @@ void init(GLFWwindow* window, int width, int height)
 	resize(window, width, height);
 }
 
-RenderingContext GetRenderingContext(Quad& quad)
+RenderingContext GetRenderingContext(Quad* quad)
 {
 	VertexArray va;
 
@@ -280,7 +280,19 @@ RenderingContext GetRenderingContext(Quad& quad)
 	va.AddBuffer(vb, layout);
 
 	IndexBuffer indexBuffer(&testQuadindices[0], testQuadindices.size());
-	return { quad, va, indexBuffer, vb, *g_ShaderPrograms[quad.GetShaderProgram()]};
+	return { quad, va, indexBuffer, vb, *g_ShaderPrograms[quad->GetShaderProgram()]};
+}
+
+void Animations()
+{
+	TimeStep delta = delta_time.GetStepForCurrentFrame();
+
+	Quad* texcolMult = g_quads.at(2);
+	Vector3f rotation = texcolMult->Transform().Rotation();
+
+	float addRotation = 45.0f * delta;
+	float newRotation = std::fmod(rotation.Y() + addRotation, 360.0f);
+	texcolMult->Transform().Rotation().Y() = newRotation;
 }
 
 void ExecuteWindow(GLFWwindow* window)
@@ -293,25 +305,25 @@ void ExecuteWindow(GLFWwindow* window)
 	Renderer renderer;
 	std::vector<RenderingContext> contexts;
 
-	for (auto it = quads.begin(); it != quads.end(); ++it)
-		contexts.push_back(GetRenderingContext(*it));
+	for (size_t i = 0; i < g_quads.size(); i++)
+	{
+		Quad* current = g_quads.at(i);
+		contexts.push_back(GetRenderingContext(current));
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
 		/* Render here */
 		renderer.Clear();
 
-		// https://www.youtube.com/watch?v=mpTl003EXCY&t=2s&ab_channel=UCDavisAcademics
+		Animations();
+
 		Vector3f direction = tfc.GetPosition() + tfc.GetDirection();
 		Vector3f position = tfc.GetPosition();
-		Matrix4x4f cameraProjection = Matrix4x4f::LookAt(position, direction, Vector3f::Up());;
 
 		glm::mat4 matCam_glm = glm::lookAt(glm::vec3(position.X(), position.Y(), position.Z()), glm::vec3(direction.X(), direction.Y(), direction.Z()), glm::vec3(0.0f, 1.0f, 0.0f));
-
-		Matrix4x4f projection = g_mvp * cameraProjection;
 		glm::mat4 projection_glm = g_mvp_glm * matCam_glm;
 
-		renderer.SetPerspective(projection);
 		renderer.SetPerspectivef(&projection_glm[0][0]);
 
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
@@ -339,6 +351,9 @@ void ExecuteWindow(GLFWwindow* window)
 		it->second->DeleteProgram();
 		delete it->second;
 	}
+
+	for (size_t i = 0; i < g_quads.size(); i++)
+		delete g_quads[i];
 }
 
 int main(void)
