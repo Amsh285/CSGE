@@ -7,8 +7,8 @@
 class IndexedVertexSet
 {
 public:
-	std::vector<Vertex>& GetVertices() { return m_VertexSet; };
-	std::vector<unsigned int>& GetIndices() { return m_Indices; };
+	const std::vector<Vertex>& GetVertices() const { return m_VertexSet; };
+	const std::vector<unsigned int>& GetIndices() const { return m_Indices; };
 
 	IndexedVertexSet(const std::vector<Vertex>& vertexSet, const std::vector<unsigned int>& indices);
 private:

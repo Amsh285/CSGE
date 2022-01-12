@@ -36,7 +36,7 @@ public:
 		float tX, float tY,
 		unsigned int index);
 
-	std::vector<float> GetVertexBuffer();
+	std::vector<float> GetVertexBuffer() const;
 private:
 	Vector3f m_Position;
 	Vector4f m_Color;

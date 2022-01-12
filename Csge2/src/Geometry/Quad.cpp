@@ -4,6 +4,141 @@ Quad::Quad()
 {
 }
 
+IndexedVertexSet* Quad::GetVerticesLoD()
+{
+	std::vector<Vertex> vertices;
+
+	/*front side*/
+	Vertex v1(
+		-0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f,
+		0
+	);
+
+	Vertex v2(
+		0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f,
+		1
+	);
+
+	Vertex v3(
+		0.0f, 0.5f, 0.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.5f, 1.0f,
+		2
+	);
+
+	vertices.push_back(v1);
+	vertices.push_back(v2);
+	vertices.push_back(v3);
+
+	/*right side*/
+	Vertex v4(
+		0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f,
+		3
+	);
+
+	Vertex v5(
+		0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f,
+		4
+	);
+
+	vertices.push_back(v4);
+	vertices.push_back(v5);
+
+	/*left side*/
+	Vertex v6(
+		-0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f,
+		5
+	);
+
+	Vertex v7(
+		-0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f,
+		6
+	);
+
+	vertices.push_back(v6);
+	vertices.push_back(v7);
+
+	/*back side*/
+	Vertex v8(
+		0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f,
+		7
+	);
+
+	Vertex v9(
+		-0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f,
+		8
+	);
+
+	vertices.push_back(v8);
+	vertices.push_back(v9);
+
+	/*bottom square*/
+	Vertex v10(
+		-0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 0.0f,
+		9
+	);
+
+	Vertex v11(
+		0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f,
+		10
+	);
+
+	Vertex v12(
+		0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f,
+		11
+	);
+
+	Vertex v13(
+		-0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f,
+		12
+	);
+
+	vertices.push_back(v10);
+	vertices.push_back(v11);
+	vertices.push_back(v12);
+	vertices.push_back(v13);
+
+	std::vector<unsigned int> indices{
+		/*front side*/
+		v1.GetIndex(), v2.GetIndex(), v3.GetIndex(),
+		/*right side*/
+		v4.GetIndex(), v5.GetIndex(), v3.GetIndex(),
+		/*left side*/
+		v6.GetIndex(), v7.GetIndex(), v3.GetIndex(),
+		/*back side*/
+		v8.GetIndex(), v9.GetIndex(), v3.GetIndex(),
+		/*bottom square*/
+		v10.GetIndex(),  v11.GetIndex(), v12.GetIndex(),
+		v12.GetIndex(), v13.GetIndex(), v10.GetIndex()
+	};
+
+	return new IndexedVertexSet(vertices, indices);
+}
+
 IndexedVertexSet* Quad::GetVertices()
 {
 	std::vector<Vertex> vertices;

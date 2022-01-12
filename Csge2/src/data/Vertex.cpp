@@ -30,11 +30,14 @@ Vertex::Vertex(
 	m_TextureCoordinate.y = tY;
 }
 
-std::vector<float> Vertex::GetVertexBuffer()
+std::vector<float> Vertex::GetVertexBuffer() const
 {
+	Vector3f pos = m_Position;
+	Vector4f color = m_Color;
+
 	return std::vector<float>{
-		m_Position.X(), m_Position.Y(), m_Position.Z(),
-		m_Color.X(), m_Color.Y(), m_Color.Z(), m_Color.H(),
+		pos.X(), pos.Y(), pos.Z(),
+		color.X(), color.Y(), color.Z(), color.H(),
 		m_TextureCoordinate.x, m_TextureCoordinate.y
 	};
 }

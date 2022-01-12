@@ -39,6 +39,7 @@ Camera tfc;
 std::vector<Quad*> g_quads;
 
 IndexedVertexSet* quadSet;
+IndexedVertexSet* pyramidSet;
 
 std::vector<Shader> g_Shaders;
 
@@ -96,8 +97,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		Vector3f backwards = tfc.GetDirection() * (-1) * speed;
 		tfc.SetPosition(tfc.GetPosition() + backwards);
 	}
-	else if (key == GLFW_KEY_D && action == GLFW_PRESS)
+	else if (key == GLFW_KEY_D)
 	{
+
+
 		/*tfc.SetPosition(tfc.GetPosition() + Vector3f(1.0f, 0.0f, 0.0f));*/
 	}
 	else if (key == GLFW_KEY_A && action == GLFW_PRESS)
@@ -155,7 +158,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 void LoadVertexSets()
 {
-	/*quadSet = Quad::GetVertices();*/
+	pyramidSet = Quad::GetVerticesLoD();
 	quadSet = Quad::GetVertices24();
 }
 
@@ -345,33 +348,39 @@ void init(GLFWwindow* window, int width, int height)
 	resize(window, width, height);
 }
 
-RenderingContext GetRenderingContext(Quad* quad)
+std::vector<float> GetVertexData(const IndexedVertexSet* set)
 {
-	VertexArray va;
-
 	std::vector<float> v_VertexData;
 
-	std::vector<Vertex>& testQuadvertices = quadSet->GetVertices();
-	std::vector<unsigned int>& testQuadindices = quadSet->GetIndices();
+	const std::vector<Vertex>& testQuadvertices = set->GetVertices();
+	const std::vector<unsigned int>& testQuadindices = set->GetIndices();
 
 	for (size_t i = 0; i < testQuadvertices.size(); i++)
 	{
-		Vertex& current = testQuadvertices.at(i);
+		const Vertex& current = testQuadvertices.at(i);
 		std::vector<float> buffer = current.GetVertexBuffer();
 
 		v_VertexData.insert(v_VertexData.end(), buffer.begin(), buffer.end());
 	}
 
+	return v_VertexData;
+}
+
+RenderingContext GetRenderingContext(Quad* quad)
+{
+	VertexArray va;
+
+	std::vector<unsigned int> indices = quadSet->GetIndices();
+	std::vector<float> v_VertexData = GetVertexData(quadSet);
 	VertexBuffer vb(&v_VertexData[0], v_VertexData.size() * sizeof(float));
 
 	VertexBufferLayout layout;
 	layout.Push<float>(3);
 	layout.Push<float>(4);
 	layout.Push<float>(2);
-
 	va.AddBuffer(vb, layout);
 
-	IndexBuffer indexBuffer(&testQuadindices[0], testQuadindices.size());
+	IndexBuffer indexBuffer(&indices[0], indices.size());
 	return { quad, va, indexBuffer, vb, *g_ShaderPrograms[quad->GetShaderProgram()]};
 }
 
@@ -410,6 +419,21 @@ void ExecuteWindow(GLFWwindow* window)
 	vbLayoutWindow.Push<float>(2);
 #pragma endregion
 
+	VertexArray vaoLoD;
+	std::vector<unsigned int> loDIndices = pyramidSet->GetIndices();
+	std::vector<float> loDVertexData = GetVertexData(pyramidSet);
+	VertexBuffer vbLoD(&loDVertexData[0], loDVertexData.size() * sizeof(float));
+
+	VertexBufferLayout layoutLoD;
+	layoutLoD.Push<float>(3);
+	layoutLoD.Push<float>(4);
+	layoutLoD.Push<float>(2);
+	vaoLoD.AddBuffer(vbLoD, layoutLoD);
+
+	IndexBuffer ibLoD(&loDIndices[0], loDIndices.size());
+
+
+
 	Renderer renderer;
 	std::vector<RenderingContext> contexts;
 
@@ -429,15 +453,31 @@ void ExecuteWindow(GLFWwindow* window)
 		Animations();
 
 		Vector3f direction = tfc.GetPosition() + tfc.GetDirection();
-		Vector3f position = tfc.GetPosition();
+		Vector3f tfcPosition = tfc.GetPosition();
 
-		glm::mat4 matCam_glm = glm::lookAt(glm::vec3(position.X(), position.Y(), position.Z()), glm::vec3(direction.X(), direction.Y(), direction.Z()), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 matCam_glm = glm::lookAt(glm::vec3(tfcPosition.X(), tfcPosition.Y(), tfcPosition.Z()), glm::vec3(direction.X(), direction.Y(), direction.Z()), glm::vec3(0.0f, 1.0f, 0.0f));
 		glm::mat4 projection_glm = g_mvp_glm * matCam_glm;
 
 		renderer.SetPerspectivef(&projection_glm[0][0]);
 
 		for (auto it = contexts.begin(); it != contexts.end(); ++it)
-			renderer.Draw(*it, g_textures);
+		{
+			RenderingContext current = *it;
+			Geometry* currentGeometry = current.GetGeometry();
+
+			Vector3f geoPosition = currentGeometry->Transform().Position();
+			Vector3f dist = tfcPosition - geoPosition;
+			float distanceSquare = dist.GetLength();
+
+			if (distanceSquare <= 2500.0f)
+				renderer.Draw(*it, g_textures);
+			else
+			{
+				RenderingContext newContext(currentGeometry, vaoLoD, ibLoD, vbLoD, *g_ShaderPrograms[currentGeometry->GetShaderProgram()]);
+				renderer.Draw(newContext, g_textures);
+			}
+		}
+			
 
 #pragma region blending refactor
 		cameraPosition = tfc.GetPosition();

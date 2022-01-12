@@ -13,6 +13,7 @@ class Quad : public Geometry
 public:
 	Quad();
 
+	static IndexedVertexSet* GetVerticesLoD();
 	static IndexedVertexSet* GetVertices();
 	static IndexedVertexSet* GetVertices24();
 };
