@@ -8,8 +8,9 @@ class DeltaTime
 public:
 	DeltaTime();
 
+	void Update();
 	TimeStep GetStepForCurrentFrame();
 private:
-	float m_LastTime;
+	float m_LastTime, m_CurrentTime;
 };
 

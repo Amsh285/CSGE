@@ -33,7 +33,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-DeltaTime delta_time;
+DeltaTime g_deltaTime;
 Camera tfc;
 
 std::vector<Quad*> g_quads;
@@ -83,21 +83,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		glfwSetWindowShouldClose(window, true);
 	else if (key == 89 && action == GLFW_PRESS)
 		tfc.Reset();
-	else if (key == GLFW_KEY_W && action == GLFW_PRESS)
+	else if (key == GLFW_KEY_W)
 	{
-		Vector3f newPosition = tfc.GetPosition() + tfc.GetDirection();
+
+		float speed = 30.0f * g_deltaTime.GetStepForCurrentFrame();
+		Vector3f newPosition = tfc.GetPosition() + (tfc.GetDirection()* speed);
 		tfc.SetPosition(newPosition);
-
-		Vector3f pos = tfc.GetPosition();
-		Vector3f dir = tfc.GetDirection();
-
-		std::cout << "direction: x" << dir.X() << " y: " << dir.Y() << " z: " << dir.Y() << std::endl;
-		std::cout << "newPosition: x: " << pos.X() << " y: " << pos.Y() << " z: " << pos.Z() << std::endl;
 	}
-	else if (key == GLFW_KEY_S && action == GLFW_PRESS)
+	else if (key == GLFW_KEY_S)
 	{
-		Vector3f backwards = tfc.GetPosition() - tfc.GetDirection();
-		tfc.SetPosition(backwards);
+		float speed = 30.0f * g_deltaTime.GetStepForCurrentFrame();
+		Vector3f backwards = tfc.GetDirection() * (-1) * speed;
+		tfc.SetPosition(tfc.GetPosition() + backwards);
 	}
 	else if (key == GLFW_KEY_D && action == GLFW_PRESS)
 	{
@@ -380,7 +377,7 @@ RenderingContext GetRenderingContext(Quad* quad)
 
 void Animations()
 {
-	TimeStep delta = delta_time.GetStepForCurrentFrame();
+	TimeStep delta = g_deltaTime.GetStepForCurrentFrame();
 	float addRotation = -45.0f * delta;
 
 	Quad* badger = g_quads.at(1);
@@ -424,6 +421,8 @@ void ExecuteWindow(GLFWwindow* window)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		g_deltaTime.Update();
+
 		/* Render here */
 		renderer.Clear();
 
